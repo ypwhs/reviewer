@@ -107,16 +107,10 @@ $('#jsonInput').keypress(function(event) {
     // Check the keyCode and if the user pressed Enter (code = 13) 
     if (event.keyCode == 13) {
       if(isJson(this.value)) {
-        userList.add(parseVals(JSON.parse(this.value)));
-        userList.sort('id', { order: "desc" });
+        //store this data in case we want to reload it
+        localStorage.setItem('lastJSON', this.value);
+        handleData(this.value);
         this.value = '';
-        $('.jumbotron').addClass('hide');
-        $('#reviewsRow').removeClass('hide');
-        $('.dropdown').removeClass('hide');
-        $('.navbar-brand').addClass('visible-xs');
-        $('.search').focus();
-        updateStats();
-        handleHover();
       }
       else {
         this.value = '';
@@ -124,6 +118,19 @@ $('#jsonInput').keypress(function(event) {
       }
     }
 });
+
+
+function handleData(dataStr) {
+  userList.add(parseVals(JSON.parse(dataStr)));
+  userList.sort('id', { order: "desc" });
+  $('.jumbotron').addClass('hide');
+  $('#reviewsRow').removeClass('hide');
+  $('.dropdown').removeClass('hide');
+  $('.navbar-brand').addClass('visible-xs');
+  $('.search').focus();
+  updateStats();
+  handleHover();
+}
 
 
 function handleHover() {
@@ -169,3 +176,20 @@ function nameInArr(name, arr)
 function findNameInArr(name, arr) {
   return $.grep(arr, function(e){ return e.name == name; });
 }
+
+$(function(){
+  var oldData = localStorage.getItem('lastJSON');
+  if (oldData != null) {
+    $('#lastData').removeClass('hide');
+  }
+});
+
+$('#lastData').click(function(){
+  var oldData = localStorage.getItem('lastJSON');
+  if (isJson(oldData)) {
+    handleData(oldData);
+  }
+  else {
+    $('#alert2').removeClass('hide');    
+  }
+});

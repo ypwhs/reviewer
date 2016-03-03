@@ -18,6 +18,7 @@ Steps to get this working:
  4. Wait for the console to echo the word `undefined` which means your result is now in your clipboard
  5. In the webpage/tool paste the JSON into the text box
  6. If you want to start over, just refresh the page.  There is no clear function right now
+ 7. Your data is stored locally on your pc.  If you refresh after the first use you should see a button that says `Load locally stored data from your last visit`.  This will not pull fresh data from Udacity but it will let you see your last loaded data without getting it and pasting it again.
 
  ### Only the following information is actually presented.  If you would like more information it will require editing the tool.
 

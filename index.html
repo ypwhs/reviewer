@@ -61,8 +61,13 @@
         <div id="alert1" class="alert alert-danger hide">
           <strong>OOPS!</strong> The tool failed to recognize your input as a proper JSON formatted input from Udacity.  Make sure you followed the instructions in the readme and try again.
         </div>
+        <div id="alert2" class="alert alert-danger hide">
+          <strong>OOPS!</strong> The tool failed to get usable JSON from localstorage.  Try pasting new data in from Udacity.
+        </div>
         <h3>Paste your JSON in this box then hit enter:</h3>
         <textarea id="jsonInput" class="form-control"></textarea>
+        <hr>
+        <button id="lastData" class="btn btn-lg btn-primary center-block hide">Load locally stored data from your last visit</button>
       </div>
     </div>
 
