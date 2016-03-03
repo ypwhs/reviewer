@@ -4,6 +4,15 @@
    Author's custom styles
    ========================================================================== */
 
+* {
+    font-family: 'Roboto', sans-serif;    
+}
+
+.hoverable {
+    font-weight: 500;
+    cursor: help;
+}
+
 #reviewsRow {
 	margin-top: 12px;
 }

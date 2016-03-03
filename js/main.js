@@ -1,5 +1,7 @@
 var options = {
-  valueNames: [ 'id', { name: 'link', attr: 'href' }, 'completed_at', 'price', 'result', 'name', ],
+  valueNames: [ 'id', { name: 'link', attr: 'href' },
+                { name: 'notes', attr: 'data-content'},
+                'completed_at', 'price', 'result', 'name', ],
   page: 15,
   plugins: [ ListPagination({outerWindow: 1}) ],  
   item: '<li class="list-group-item"><div class="row">' +
@@ -10,7 +12,9 @@ var options = {
         '</div><div class="col-sm-2 col-xs-2">' +
         '<span class="price"></span>' + 
         '</div><div class="col-sm-2 col-xs-2">' +
-        '<span class="result"></span>' +        
+        '<span class="result notes" data-placement="auto bottom" ' +
+        'data-toggle="popover"' +
+        'data-trigger="hover"></span>' +
         '</div><div class="col-sm-4 col-xs-4">' +
         '<span class="name"></span>' + 
         '</div></div>' +
@@ -110,6 +114,8 @@ $('#jsonInput').keypress(function(event) {
         $('.navbar-brand').addClass('visible-xs');
         $('.search').focus();
         updateStats();
+        //popover stuff
+        $('.notes:not([data-content="null"])').popover().addClass('hoverable');
       }
       else {
         this.value = '';
