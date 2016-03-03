@@ -1,10 +1,8 @@
 # Udacity Completed Review Viewer
 
-[live version here](https://simplydallas.github.io/udacityreviewparser/)
-
 Steps to get this working:
 
- 1. Download/clone this repository and open the index.html file or open the live version above.  (live version is recommended)
+ 1. Download/clone this repository and open the index.html file or open the [live version here](https://simplydallas.github.io/udacityreviewparser/).  (live version is recommended)
  2. Open the [Udacity reviewer dashboard](https://review.udacity.com/#!/submissions/dashboard) and make sure you are logged in
  3. In the console paste the following code:
  ```javascript
