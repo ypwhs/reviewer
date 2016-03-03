@@ -5,6 +5,7 @@ Steps to get this working:
  1. Download/clone this repository and open the index.html file or open the [live version here](https://simplydallas.github.io/udacityreviewparser/).  (live version is recommended)
  2. Open the [Udacity reviewer dashboard](https://review.udacity.com/#!/submissions/dashboard) and make sure you are logged in
  3. In the dev console (with the udacity dashboard in focus) paste the following code:
+
  ```javascript
  copy($.ajax({
   method: 'GET',
@@ -13,6 +14,7 @@ Steps to get this working:
   async: false
 }).responseJSON)
  ```
+ 
  4. Wait for the console to echo the word `undefined` which means your result is now in your clipboard
  5. In the webpage/tool paste the JSON into the text box
  6. If you want to start over, just refresh the page.  There is no clear function right now
