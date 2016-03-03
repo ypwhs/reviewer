@@ -4,7 +4,7 @@ Steps to get this working:
 
  1. Download/clone this repository and open the index.html file or open the [live version here](https://simplydallas.github.io/udacityreviewparser/).  (live version is recommended)
  2. Open the [Udacity reviewer dashboard](https://review.udacity.com/#!/submissions/dashboard) and make sure you are logged in
- 3. In the console paste the following code:
+ 3. In the dev console (with the udacity dashboard in focus) paste the following code:
  ```javascript
  copy($.ajax({
   method: 'GET',
