@@ -17,7 +17,7 @@ Steps to get this working:
  5. In the webpage/tool paste the JSON into the text box
  6. If you want to start over, just refresh the page.  There is no clear function right now
 
- ## Only the following information is actually presented.  If you would like more information it will require editing the tool.
+ ### Only the following information is actually presented.  If you would like more information it will require editing the tool.
 
  * review id (this is the default sort item)
  * date review completed
@@ -26,3 +26,11 @@ Steps to get this working:
  * The name of the project reviewed
 
  note: Although that is the only information presented, the tool may find things that don't quite seem to make sense when you filter.  For example, if your student's name was Jeff and you type `jeff` into the search it will find that review but you won't be able to see the student name.  This is probably not ideal behavior but this is a quick throw together tool until udacity has their own front end so I didn't take time to present all information.
+
+ ### Basic overall stats are shown on the navbar / header
+
+ * Total count of reviews
+ * Total earned amount
+ * Average earned per review
+ * Earliest review date
+ * Most recent review date.
