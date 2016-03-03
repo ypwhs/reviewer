@@ -38,11 +38,12 @@ var parseVals = function(vals) {
     //pull the project name to top the top level
     review.name = review.project.name;
     if (!nameInArr(review.name, stats.projects)) {
-      stats.projects.push({name: review.name, earned: 0});
+      stats.projects.push({name: review.name, earned: 0, count: 0});
     }
     //money stuff
     var proj = findNameInArr(review.name, stats.projects);
     proj[0].earned += +review.price;
+    proj[0].count += 1;
     stats.earned += +review.price;
     review.price = numToMoney(+review.price);
   });
@@ -51,9 +52,9 @@ var parseVals = function(vals) {
 
   }
   //some format cleanup on stats to make them presentable
+  cleanStatsProjects(); //needs to be first as it relies on unmutated numbers
   stats.reviewCount = numWithComs(stats.reviewCount);
   stats.avgEarned = numToMoney(stats.earned / stats.reviewCount);
-  cleanStatsProjects();
   stats.earned = numToMoney(stats.earned);
   stats.startDate = stats.startDate.format("L");
   stats.recentDate = stats.recentDate.format("L");
@@ -62,8 +63,10 @@ var parseVals = function(vals) {
 
 function cleanStatsProjects() {
   stats.projects.forEach(function(project) {
-    project.percent = '' + Math.round(project.earned / stats.earned * 1000) / 10 + '%';
+    project.earnedPerc = '' + Math.round(project.earned / stats.earned * 1000) / 10 + '%';
+    project.countPerc = '' + Math.round(project.count / stats.reviewCount * 1000) / 10 + '%';    
     project.earned = numToMoney(project.earned);
+    project.count = numWithComs(project.count);
   });
 }
 
@@ -77,13 +80,19 @@ function updateStats() {
   $('.statStart').html('Earliest Review: ' + spnSt + stats.startDate + '</span>');
   $('.statRecent').html('Latest Review: ' + spnSt + stats.recentDate + '</span>');
   var projStr = '';
+  var projStr2 = '';
   var projPre = '<li><a href="#">';
   var projSuf = '</a></li>';
   stats.projects.forEach(function(project) {
+    //earned stuff
     projStr += projPre + project.name + ': ' + project.earned + ' (' +
-    project.percent + ')' + projSuf;
+    project.earnedPerc + ')' + projSuf;
+    //count stuff
+    projStr2 += projPre + project.name + ': ' + project.count + ' (' +  
+    project.countPerc + ')' + projSuf;    
   });
-  $('.dropdown-menu').html(projStr);
+  $('.earnedDD').html(projStr);
+  $('.countDD').html(projStr2);
 }
 
 $('#jsonInput').keypress(function(event) {

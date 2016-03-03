@@ -31,7 +31,7 @@ Steps to get this working:
 
  ### Basic overall stats are shown on the navbar / header
 
- * Total count of reviews
+ * Total count of reviews (dropdown menu shows total per project and %)
  * Total earned amount (dropdown menu shows total per project and %)
  * Average earned per review
  * Earliest review date

@@ -36,11 +36,13 @@
 
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li><p class='navbar-text statCnt'></p></li>
-
+            <li class="dropdown hide">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class='statCnt'></span> <span class="caret"></span></a>
+              <ul class="dropdown-menu countDD"></ul>
+            </li>
             <li class="dropdown hide">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class='statEarned'></span> <span class="caret"></span></a>
-              <ul class="dropdown-menu"></ul>
+              <ul class="dropdown-menu earnedDD"></ul>
             </li>
 
             <li><p class='navbar-text statAvg'></p></li>
