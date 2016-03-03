@@ -44,6 +44,7 @@ var parseVals = function(vals) {
 
   }
   //some format cleanup on stats to make them presentable
+  stats.reviewCount = numWithComs(stats.reviewCount);
   stats.avgEarned = numToMoney(stats.earned / stats.reviewCount);
   stats.earned = numToMoney(stats.earned);
   stats.startDate = stats.startDate.format("L");
@@ -103,5 +104,9 @@ function isJson(item) {
 
 function numToMoney(x) {
     x = Math.round(x*100)/100;
-    return '$' + x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return '$' + numWithComs(x);
+}
+
+function numWithComs(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
