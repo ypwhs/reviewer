@@ -22,8 +22,9 @@ var stats = {
   earned: 0,
   avgEarned: 0,
   startDate: moment('2999-01-01'),
-  recentDate: moment('1980-01-01')
-}
+  recentDate: moment('1980-01-01'),
+  projects: []
+};
 
 var parseVals = function(vals) {
   var ret = JSON.parse(JSON.stringify(vals));
@@ -36,10 +37,15 @@ var parseVals = function(vals) {
     review.completed_at = dateComp.format("L");
     //pull the project name to top the top level
     review.name = review.project.name;
+    if (!nameInArr(review.name, stats.projects)) {
+      stats.projects.push({name: review.name, earned: 0});
+    }
     //money stuff
+    var proj = findNameInArr(review.name, stats.projects);
+    proj[0].earned += +review.price;
     stats.earned += +review.price;
     review.price = numToMoney(+review.price);
-  })
+  });
   var earnedInt = parseInt(stats.earned);
   if (''+earnedInt.length > 3) {
 
@@ -47,21 +53,37 @@ var parseVals = function(vals) {
   //some format cleanup on stats to make them presentable
   stats.reviewCount = numWithComs(stats.reviewCount);
   stats.avgEarned = numToMoney(stats.earned / stats.reviewCount);
+  cleanStatsProjects();
   stats.earned = numToMoney(stats.earned);
   stats.startDate = stats.startDate.format("L");
   stats.recentDate = stats.recentDate.format("L");
   return ret;
+};
+
+function cleanStatsProjects() {
+  stats.projects.forEach(function(project) {
+    project.percent = '' + Math.round(project.earned / stats.earned * 1000) / 10 + '%';
+    project.earned = numToMoney(project.earned);
+  });
 }
 
 var userList = new List('reviews', options, '');
 
 function updateStats() {
-  var spnSt = '<span class="text-success">'
+  var spnSt = '<span class="text-success">';
   $('.statCnt').html('Reviews: ' + spnSt + stats.reviewCount + '</span>');
   $('.statEarned').html('Earned: ' + spnSt + stats.earned + '</span>');
   $('.statAvg').html('Average Earned: ' + spnSt + stats.avgEarned + '</span>');
   $('.statStart').html('Earliest Review: ' + spnSt + stats.startDate + '</span>');
   $('.statRecent').html('Latest Review: ' + spnSt + stats.recentDate + '</span>');
+  var projStr = '';
+  var projPre = '<li><a href="#">';
+  var projSuf = '</a></li>';
+  stats.projects.forEach(function(project) {
+    projStr += projPre + project.name + ': ' + project.earned + ' (' +
+    project.percent + ')' + projSuf;
+  });
+  $('.dropdown-menu').html(projStr);
 }
 
 $('#jsonInput').keypress(function(event) {
@@ -73,6 +95,7 @@ $('#jsonInput').keypress(function(event) {
         this.value = '';
         $('.jumbotron').addClass('hide');
         $('#reviewsRow').removeClass('hide');
+        $('.dropdown').removeClass('hide');
         $('.navbar-brand').addClass('visible-xs');
         $('.search').focus();
         updateStats();
@@ -86,9 +109,9 @@ $('#jsonInput').keypress(function(event) {
 
 
 function isJson(item) {
-    item = typeof item !== "string"
-        ? JSON.stringify(item)
-        : item;
+    item = typeof item !== "string" ?
+        JSON.stringify(item) :
+        item;
 
     try {
         item = JSON.parse(item);
@@ -112,4 +135,14 @@ function numToMoney(x) {
 
 function numWithComs(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function nameInArr(name, arr)
+{
+    var test = findNameInArr(name, arr);
+    return (test.length > 0);
+}
+
+function findNameInArr(name, arr) {
+  return $.grep(arr, function(e){ return e.name == name; });
 }
