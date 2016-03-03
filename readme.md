@@ -4,7 +4,7 @@
 
 Steps to get this working:
 
- 1. Download/clone this repository and open the index.html file
+ 1. Download/clone this repository and open the index.html file or open the live version above.  (live version is recommended)
  2. Open the [Udacity reviewer dashboard](https://review.udacity.com/#!/submissions/dashboard) and make sure you are logged in
  3. In the console paste the following code:
  ```javascript
