@@ -1,10 +1,10 @@
 var options = {
-  valueNames: [ 'id', 'completed_at', 'price', 'result', 'name', ],
+  valueNames: [ 'id', { name: 'link', attr: 'href' }, 'completed_at', 'price', 'result', 'name', ],
   page: 15,
   plugins: [ ListPagination({outerWindow: 1}) ],  
   item: '<li class="list-group-item"><div class="row">' +
         '<div class="col-sm-2 col-xs-2">' +
-        '<span class="id"></span>' + 
+        '<a class="link"><span class="id"></span></a>' + 
         '</div><div class="col-sm-2 col-xs-2">' +
         '<span class="completed_at"></span>' + 
         '</div><div class="col-sm-2 col-xs-2">' +
@@ -30,6 +30,8 @@ var parseVals = function(vals) {
   var ret = JSON.parse(JSON.stringify(vals));
   stats.reviewCount += ret.length; //total reviews
   ret.forEach(function(review){
+    //linkify id
+    review.link = "https://review.udacity.com/#!/reviews/" + review.id;
     //date stuff
     var dateComp = moment(review.completed_at);
     if (stats.startDate.isAfter(dateComp, 'day')) stats.startDate = dateComp;
