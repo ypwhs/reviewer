@@ -13,6 +13,13 @@
     cursor: help;
 }
 
+.popover {
+    min-width: 320px; !important;
+    max-width: 600px; !important;
+    width: auto; !important;
+    height: auto; !important;
+}
+
 #reviewsRow {
 	margin-top: 12px;
 }

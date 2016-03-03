@@ -12,7 +12,7 @@ var options = {
         '</div><div class="col-sm-2 col-xs-2">' +
         '<span class="price"></span>' + 
         '</div><div class="col-sm-2 col-xs-2">' +
-        '<span class="result notes" data-placement="auto bottom" ' +
+        '<span class="result notes" data-placement="auto top" ' +
         'data-toggle="popover"' +
         'data-trigger="hover"></span>' +
         '</div><div class="col-sm-4 col-xs-4">' +
@@ -78,6 +78,8 @@ function cleanStatsProjects() {
 
 var userList = new List('reviews', options, '');
 
+userList.on('updated', handleHover);
+
 function updateStats() {
   var spnSt = '<span class="text-success">';
   $('.statCnt').html('Reviews: ' + spnSt + stats.reviewCount + '</span>');
@@ -114,8 +116,7 @@ $('#jsonInput').keypress(function(event) {
         $('.navbar-brand').addClass('visible-xs');
         $('.search').focus();
         updateStats();
-        //popover stuff
-        $('.notes:not([data-content="null"])').popover().addClass('hoverable');
+        handleHover();
       }
       else {
         this.value = '';
@@ -124,6 +125,11 @@ $('#jsonInput').keypress(function(event) {
     }
 });
 
+
+function handleHover() {
+  $('.notes:not([data-content="null"],[data-content=""])')
+  .popover({container: 'body'}).addClass('hoverable');
+}
 
 function isJson(item) {
     item = typeof item !== "string" ?
