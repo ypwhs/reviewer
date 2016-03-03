@@ -8,6 +8,29 @@
 	margin-top: 12px;
 }
 
+@media (min-width: 768px) {
+    .navbar .navbar-nav {
+        display: inline-block;
+        float: none;
+        vertical-align: top;
+    }
+
+    .navbar .navbar-collapse {
+        text-align: center;
+    }
+}
+@media (max-width: 1000px) {
+	.navbar .navbar-nav li p {
+		margin-left: 5px;
+		margin-right: 5px;
+	}
+}
+@media (max-width: 800px) {
+	.navbar .navbar-nav li p {
+		margin-left: 2px;
+		margin-right: 2px;
+	}
+}
 
 
 

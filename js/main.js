@@ -2,15 +2,16 @@ var options = {
   valueNames: [ 'id', 'completed_at', 'price', 'result', 'name', ],
   page: 15,
   plugins: [ ListPagination({outerWindow: 1}) ],  
-  item: '<li class="list-group-item"><div class="row"><div class="col-md-2">' +
+  item: '<li class="list-group-item"><div class="row">' +
+        '<div class="col-sm-2 col-xs-2">' +
         '<span class="id"></span>' + 
-        '</div><div class="col-md-2">' +
+        '</div><div class="col-sm-2 col-xs-2">' +
         '<span class="completed_at"></span>' + 
-        '</div><div class="col-md-2">' +
+        '</div><div class="col-sm-2 col-xs-2">' +
         '<span class="price"></span>' + 
-        '</div><div class="col-md-2">' +
+        '</div><div class="col-sm-2 col-xs-2">' +
         '<span class="result"></span>' +        
-        '</div><div class="col-md-4">' +
+        '</div><div class="col-sm-4 col-xs-4">' +
         '<span class="name"></span>' + 
         '</div></div>' +
         '</li>'
@@ -55,11 +56,12 @@ var parseVals = function(vals) {
 var userList = new List('reviews', options, '');
 
 function updateStats() {
-  $('.statCnt').text('Reviews: ' + stats.reviewCount);
-  $('.statEarned').text('Earned: ' + stats.earned);
-  $('.statAvg').text('Average Earned: ' + stats.avgEarned);
-  $('.statStart').text('Earliest Review: ' + stats.startDate);
-  $('.statRecent').text('Latest Review: ' + stats.recentDate);
+  var spnSt = '<span class="text-success">'
+  $('.statCnt').html('Reviews: ' + spnSt + stats.reviewCount + '</span>');
+  $('.statEarned').html('Earned: ' + spnSt + stats.earned + '</span>');
+  $('.statAvg').html('Average Earned: ' + spnSt + stats.avgEarned + '</span>');
+  $('.statStart').html('Earliest Review: ' + spnSt + stats.startDate + '</span>');
+  $('.statRecent').html('Latest Review: ' + spnSt + stats.recentDate + '</span>');
 }
 
 $('#jsonInput').keypress(function(event) {
@@ -71,6 +73,7 @@ $('#jsonInput').keypress(function(event) {
         this.value = '';
         $('.jumbotron').addClass('hide');
         $('#reviewsRow').removeClass('hide');
+        $('.navbar-brand').addClass('visible-xs');
         $('.search').focus();
         updateStats();
       }

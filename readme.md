@@ -1,5 +1,7 @@
 # Udacity Completed Review Viewer
 
+[live version here](https://simplydallas.github.io/udacityreviewparser/)
+
 Steps to get this working:
 
  1. Download/clone this repository and open the index.html file
