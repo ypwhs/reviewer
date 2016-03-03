@@ -40,7 +40,8 @@ $('#jsonInput').keypress(function(event) {
         $('.search').focus();
       }
       else {
-
+        this.value = '';
+        $('#alert1').removeClass('hide');
       }
     }
 });
@@ -58,7 +59,9 @@ function isJson(item) {
     }
 
     if (typeof item === "object" && item !== null) {
+      if (item[0].completed_at !== undefined) {
         return true;
+      }
     }
 
     return false;
