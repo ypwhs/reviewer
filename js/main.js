@@ -79,6 +79,18 @@ function cleanStatsProjects() {
 var userList = new List('reviews', options, '');
 
 userList.on('updated', handleHover);
+userList.on('updated', updateFilteredEarn);
+
+/**
+ * updates .statFilteredEarn with the sum of matching projects
+ */
+function updateFilteredEarn() {
+  var sum = 0;
+  userList.matchingItems.forEach(function(item) {
+    sum += Number(item._values.price.substring(1));
+  });
+  $('.statFilteredEarn').html('Filtered sum: ' + numToMoney(sum));
+}
 
 function updateStats() {
   var spnSt = '<span class="text-success">';
