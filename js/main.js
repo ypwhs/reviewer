@@ -1,3 +1,7 @@
+/**
+ * options for listjs including an ugly html template to use
+ * for the list itself when parsing in items from Udacity data
+ */
 var options = {
   valueNames: [ 'id', { name: 'link', attr: 'href' },
                 { name: 'notes', attr: 'data-content'},
@@ -21,6 +25,10 @@ var options = {
         '</li>'
 };
 
+
+/**
+ * this holds our user stats while we work on them before displaying
+ */
 var stats = {
   reviewCount: 0,
   earned: 0,
@@ -30,6 +38,12 @@ var stats = {
   projects: []
 };
 
+/**
+ * parses a javascrip object and manipulates it some for use
+ * in the searchable list
+ * @param  {object} vals javascript object containing Udacity data from JSON
+ * @return {object} parsed and somewhat modified javascript object
+ */
 var parseVals = function(vals) {
   var ret = JSON.parse(JSON.stringify(vals));
   stats.reviewCount += ret.length; //total reviews
@@ -62,11 +76,15 @@ var parseVals = function(vals) {
   stats.reviewCount = numWithComs(stats.reviewCount);
   stats.avgEarned = numToMoney(stats.earned / stats.reviewCount);
   stats.earned = numToMoney(stats.earned);
-  stats.startDate = stats.startDate.format("L");
-  stats.recentDate = stats.recentDate.format("L");
+  stats.startDate = stats.startDate.format("l");
+  stats.recentDate = stats.recentDate.format("l");
   return ret;
 };
 
+/**
+ * do some formatting on the stats.project subobject so
+ * it is easier to display in the DOM
+ */
 function cleanStatsProjects() {
   stats.projects.forEach(function(project) {
     project.earnedPerc = '' + Math.round(project.earned / stats.earned * 1000) / 10 + '%';
@@ -78,27 +96,40 @@ function cleanStatsProjects() {
 
 var userList = new List('reviews', options, '');
 
-userList.on('updated', handleHover);
-userList.on('updated', updateFilteredEarn);
+userList.on('updated', listUpdate);
 
 /**
- * updates .statFilteredEarn with the sum of matching projects
+ * Handle items that should be run whne the list updates
+ * TODO: consider a short throttle to avoid double updates
  */
-function updateFilteredEarn() {
-  var sum = 0;
-  userList.matchingItems.forEach(function(item) {
-    sum += Number(item._values.price.substring(1));
-  });
-  $('.statFilteredEarn').html('Filtered sum: ' + numToMoney(sum));
+function listUpdate() {
+  handleHover();
+  updateSearchEarned();
 }
 
+/**
+ * updates .statSearchEarned with the sum of matching projects
+ */
+function updateSearchEarned() {
+  var sum = 0;
+  userList.matchingItems.forEach(function(item) {
+    sum += +item._values.price.substring(1);
+  });
+  var startStr = 'Search Sum: <span class="text-success">';
+  var endStr = ' (' + userList.matchingItems.length + ')</span>';
+  $('.statSearchEarned').html(startStr + numToMoney(sum) + endStr);
+}
+
+/**
+ * update the various navbar dom elements with stat information
+ */
 function updateStats() {
   var spnSt = '<span class="text-success">';
   $('.statCnt').html('Reviews: ' + spnSt + stats.reviewCount + '</span>');
   $('.statEarned').html('Earned: ' + spnSt + stats.earned + '</span>');
-  $('.statAvg').html('Average Earned: ' + spnSt + stats.avgEarned + '</span>');
-  $('.statStart').html('Earliest Review: ' + spnSt + stats.startDate + '</span>');
-  $('.statRecent').html('Latest Review: ' + spnSt + stats.recentDate + '</span>');
+  $('.statAvg').html('Average: ' + spnSt + stats.avgEarned + '</span>');
+  $('.statStart').html('Earliest: ' + spnSt + stats.startDate + '</span>');
+  $('.statRecent').html('Latest: ' + spnSt + stats.recentDate + '</span>');
   var projStr = '';
   var projStr2 = '';
   var projPre = '<li><a href="#">';
@@ -115,6 +146,10 @@ function updateStats() {
   $('.countDD').html(projStr2);
 }
 
+/**
+ * Keypress event to capture enter key in the textarea
+ * that is used to input JSON data as text from Udacity
+ */
 $('#jsonInput').keypress(function(event) {
     // Check the keyCode and if the user pressed Enter (code = 13) 
     if (event.keyCode == 13) {
@@ -131,7 +166,11 @@ $('#jsonInput').keypress(function(event) {
     }
 });
 
-
+/**
+ * initialization function that kicks off various tasks
+ * once varified data has been fed in from user input or local storage
+ * @param  {string} dataStr [the JSON data in string format]
+ */
 function handleData(dataStr) {
   userList.add(parseVals(JSON.parse(dataStr)));
   userList.sort('id', { order: "desc" });
@@ -144,12 +183,22 @@ function handleData(dataStr) {
   handleHover();
 }
 
-
+/**
+ * tooltip/popover are only initialized for currently visible
+ * dom elements.  So every time we update what is visible this
+ * is run again to ensure new elements have their popover
+ */
 function handleHover() {
   $('.notes:not([data-content="null"],[data-content=""])')
   .popover({container: 'body'}).addClass('hoverable');
 }
 
+
+/**
+ * Check if an object is valid Udacity JSON in string format
+ * @param  {string} item [object to test]
+ * @return {Boolean}
+ */
 function isJson(item) {
     item = typeof item !== "string" ?
         JSON.stringify(item) :
@@ -170,25 +219,57 @@ function isJson(item) {
     return false;
 }
 
-function numToMoney(x) {
-    x = Math.round(x*100)/100;
-    return '$' + numWithComs(x);
+
+/**
+ * convert a number to monetary format with $ and commas
+ * will also work with a number parsable string as input
+ * @param  {number} num [number to convert to money string]
+ * @return {string}   [string in format of $1,000.00]
+ */
+function numToMoney(num) {
+    num = Math.round(num*100)/100;
+    return '$' + numWithComs(num);
 }
 
-function numWithComs(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+/**
+ * add commas to numbers at 3 character intervals
+ * also works with a number parsable string
+ * @param  {number} num [number to convert to string]
+ * @return {string}     [number with commas added]
+ */
+function numWithComs(num) {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
+
+/**
+ * look for a given name in an array.  return true if found
+ * @param  {string} name string to look for
+ * @param  {array} arr  array to look for a string in
+ * @return {boolean}
+ */
 function nameInArr(name, arr)
 {
     var test = findNameInArr(name, arr);
     return (test.length > 0);
 }
 
+
+/**
+ * look for a given name in an array.  The format of the array
+ * is taken for granted to include a name as a first level key
+ * @param  {string} name string to look for
+ * @param  {array} arr  array to look for a string in
+ * @return {object} object containing the name or a 0 length object
+ */
 function findNameInArr(name, arr) {
   return $.grep(arr, function(e){ return e.name == name; });
 }
 
+/**
+ * runs when the page loads and checks if there is user data
+ * in localStorage.  If so, unhide a button element
+ */
 $(function(){
   var oldData = localStorage.getItem('lastJSON');
   if (oldData != null) {
@@ -196,6 +277,11 @@ $(function(){
   }
 });
 
+
+/**
+ * click handler for the button that loads previously saved
+ * user data from localStorage
+ */
 $('#lastData').click(function(){
   var oldData = localStorage.getItem('lastJSON');
   if (isJson(oldData)) {

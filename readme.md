@@ -37,3 +37,4 @@ Steps to get this working:
  * Average earned per review
  * Earliest review date
  * Most recent review date.
+ * Total earned by reviews matching current search (and a count).

@@ -35,14 +35,18 @@
         text-align: center;
     }
 }
-@media (max-width: 1000px) {
-	.navbar .navbar-nav li p {
+@media (max-width: 1100px) {
+	.navbar .navbar-nav li p,
+    .navbar .navbar-nav li a {
+        padding-left: 0;
+        padding-right: 0;        
 		margin-left: 5px;
 		margin-right: 5px;
 	}
 }
-@media (max-width: 800px) {
-	.navbar .navbar-nav li p {
+@media (max-width: 900px) {
+    .navbar .navbar-nav li p,
+    .navbar .navbar-nav li a {
 		margin-left: 2px;
 		margin-right: 2px;
 	}
