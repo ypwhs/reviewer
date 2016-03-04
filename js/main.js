@@ -10,7 +10,7 @@ var options = {
   plugins: [ ListPagination({outerWindow: 1}) ],  
   item: '<li class="list-group-item"><div class="row">' +
         '<div class="col-sm-2 col-xs-2">' +
-        '<a class="link"><span class="id"></span></a>' + 
+        '<a class="link" target="_blank"><span class="id"></span></a>' + 
         '</div><div class="col-sm-2 col-xs-2">' +
         '<span class="completed_at"></span>' + 
         '</div><div class="col-sm-2 col-xs-2">' +
