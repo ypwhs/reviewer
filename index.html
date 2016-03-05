@@ -8,6 +8,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/bootstrap-datepicker3.min.css">
         <style>
             body {
                 padding-top: 50px;
@@ -16,7 +17,7 @@
         </style>
         <link rel="stylesheet" href="css/bootstrap-theme.min.css">
         <link rel="stylesheet" href="css/main.css">
-        <link href='https://fonts.googleapis.com/css?family=Roboto:400,500,700' rel='stylesheet' type='text/css'>
+        <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700" rel="stylesheet" type="text/css">
 
         <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
     </head>
@@ -38,18 +39,18 @@
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li class="dropdown hide">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class='statCnt'></span> <span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="statCnt"></span> <span class="caret"></span></a>
               <ul class="dropdown-menu countDD"></ul>
             </li>
             <li class="dropdown hide">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class='statEarned'></span> <span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="statEarned"></span> <span class="caret"></span></a>
               <ul class="dropdown-menu earnedDD"></ul>
             </li>
 
-            <li><p class='navbar-text statAvg'></p></li>
-            <li><p class='navbar-text statStart'></p></li>
-            <li><p class='navbar-text statRecent'></p></li>
-            <li><p class='navbar-text statSearchEarned'></p></li>
+            <li><p class="navbar-text statAvg"></p></li>
+            <li><a href="#" class="statStart"></a></li>
+            <li><a href="#" class="statRecent"></a></li>
+            <li><p class="navbar-text statSearchEarned"></p></li>
           </ul>
 
         </div><!--/.nav-collapse -->
@@ -75,7 +76,18 @@
     <div class="container">
       <div id="reviewsRow" class="row hide">
         <div id="reviews">
-          <input class="search form-control" placeholder="Search" />
+          <div class="row filterRow">
+            <div class="col-sm-6">
+              <input class="search form-control" placeholder="Search" />
+            </div>
+            <div class="col-sm-6">
+              <div class="input-daterange input-group" id="datepicker">
+                <input type="text" class="fromDate input-sm form-control" name="start" />
+                <span class="input-group-addon">to</span>
+                <input type="text" class="toDate input-sm form-control" name="end" />
+              </div>
+            </div>
+          </div>
           <button class="sort btn btn-sm btn-primary col-sm-2 col-xs-2" data-sort="id">
             <span class="hidden-xs">Sort by </span>id
           </button>
@@ -98,10 +110,10 @@
       </div>
     </div> <!-- end container -->
 
-    <!--   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script> -->
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
         <script src="js/vendor/bootstrap.min.js"></script>
-        <script src="js/vendor/moment.min.js"></script>        
+        <script src="js/vendor/moment.min.js"></script>
+        <script src="js/vendor/bootstrap-datepicker.min.js"></script>
         <script src="js/vendor/list.js"></script>
         <script src="js/vendor/list.pagination.min.js"></script>
         <script src="js/main.js"></script>

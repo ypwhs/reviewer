@@ -20,6 +20,14 @@
     height: auto; !important;
 }
 
+.search {
+    height: 30px;
+}
+
+.filterRow {
+    margin-bottom: 5px;
+}
+
 #reviewsRow {
 	margin-top: 12px;
 }
@@ -51,17 +59,3 @@
 		margin-right: 2px;
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

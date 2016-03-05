@@ -5,14 +5,14 @@
 var options = {
   valueNames: [ 'id', { name: 'link', attr: 'href' },
                 { name: 'notes', attr: 'data-content'},
-                'completed_at', 'price', 'result', 'name', ],
+                'completedDate', 'price', 'result', 'name', ],
   page: 15,
   plugins: [ ListPagination({outerWindow: 1}) ],  
   item: '<li class="list-group-item"><div class="row">' +
         '<div class="col-sm-2 col-xs-2">' +
         '<a class="link" target="_blank"><span class="id"></span></a>' + 
         '</div><div class="col-sm-2 col-xs-2">' +
-        '<span class="completed_at"></span>' + 
+        '<span class="completedDate"></span>' + 
         '</div><div class="col-sm-2 col-xs-2">' +
         '<span class="price"></span>' + 
         '</div><div class="col-sm-2 col-xs-2">' +
@@ -54,7 +54,7 @@ var parseVals = function(vals) {
     var dateComp = moment(review.completed_at);
     if (stats.startDate.isAfter(dateComp, 'day')) stats.startDate = dateComp;
     if (stats.recentDate.isBefore(dateComp, 'day')) stats.recentDate = dateComp;
-    review.completed_at = dateComp.format("L");
+    review.completedDate = dateComp.format("L");
     //pull the project name to top the top level
     review.name = review.project.name;
     if (!nameInArr(review.name, stats.projects)) {
@@ -130,6 +130,8 @@ function updateStats() {
   $('.statAvg').html('Average: ' + spnSt + stats.avgEarned + '</span>');
   $('.statStart').html('Earliest: ' + spnSt + stats.startDate + '</span>');
   $('.statRecent').html('Latest: ' + spnSt + stats.recentDate + '</span>');
+  //also apply dates to the date picker
+  initDatePicker();
   var projStr = '';
   var projStr2 = '';
   var projPre = '<li><a href="#">';
@@ -267,16 +269,27 @@ function findNameInArr(name, arr) {
 }
 
 /**
- * runs when the page loads and checks if there is user data
- * in localStorage.  If so, unhide a button element
+ * initialize the datepicker for date filtering and add an event listener
  */
-$(function(){
-  var oldData = localStorage.getItem('lastJSON');
-  if (oldData != null) {
-    $('#lastData').removeClass('hide');
-  }
-});
+function initDatePicker() {
+  $('.fromDate').val(stats.startDate);
+  $('.toDate').val(stats.recentDate);
+  $('.input-daterange').datepicker({
+      //this will get local date format pattern from moment
+      format: moment.localeData().longDateFormat('L').toLowerCase(),
+      todayHighlight: true
+  }).on('changeDate', function(e) {
+      filterListDates();
+  });;
+}
 
+function filterListDates(){
+  var f = moment($('.fromDate').datepicker('getDate')).subtract(1, 'day');
+  var t = moment($('.toDate').datepicker('getDate')).add(1, 'd');
+  userList.filter(function(item) {
+    return moment(item.values().completed_at).isBetween(f, t);
+  });
+}
 
 /**
  * click handler for the button that loads previously saved
@@ -289,5 +302,30 @@ $('#lastData').click(function(){
   }
   else {
     $('#alert2').removeClass('hide');    
+  }
+});
+
+/**
+ * click handler for the earliest date in navbar
+ */
+$('.statStart').click(function(){
+  $('.fromDate').datepicker('setDate', stats.startDate);
+});
+
+/**
+ * click handler for the recent date in navbar
+ */
+$('.statRecent').click(function(){
+  $('.toDate').datepicker('setDate', stats.recentDate);
+});
+
+/**
+ * runs when the page loads and checks if there is user data
+ * in localStorage.  If so, unhide a button element
+ */
+$(function(){
+  var oldData = localStorage.getItem('lastJSON');
+  if (oldData != null) {
+    $('#lastData').removeClass('hide');
   }
 });
