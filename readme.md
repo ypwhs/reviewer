@@ -23,8 +23,8 @@ copy($.ajax({
 ### The following information is presented
 
 * review id (this is the default sort item and links to the original review)
-* date review completed
-* price associated with the review
+* date review completed (in local format thanks to momentjs)
+* price associated with the review at the time it was completed
 * result of the review (if the student left an initial note this will have a popover on hover containing that note)
 * The name of the project reviewed
 
@@ -54,5 +54,6 @@ copy($.ajax({
 * Show more data details as a modal popup or other measure outside of the column list.
 * Use of D3 for graph of earnings or other interesting data.
 * Decide max number of list items per page based on window height
+
 
 -Dallas Frank
