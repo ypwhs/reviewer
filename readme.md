@@ -25,7 +25,7 @@ copy($.ajax({
 * review id (this is the default sort item and links to the original review)
 * date review completed
 * price associated with the review
-* result of the review (if the student left a note this will)
+* result of the review (if the student left an initial note this will have a popover on hover containing that note)
 * The name of the project reviewed
 
 #### Basic overall stats are shown on the navbar / header
