@@ -53,5 +53,6 @@ copy($.ajax({
 * Stats that update fully based on filter and search rather than just the Search sum.
 * Show more data details as a modal popup or other measure outside of the column list.
 * Use of D3 for graph of earnings or other interesting data.
+* Decide max number of list items per page based on window height
 
 -Dallas Frank
