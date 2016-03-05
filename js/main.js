@@ -277,7 +277,8 @@ function initDatePicker() {
   $('.input-daterange').datepicker({
       //this will get local date format pattern from moment
       format: moment.localeData().longDateFormat('l').toLowerCase(),
-      todayHighlight: true
+      todayHighlight: true,
+      autoclose: true
   }).on('changeDate', function(e) {
       filterListDates();
   });;
