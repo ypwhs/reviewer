@@ -46,11 +46,14 @@
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="statEarned"></span> <span class="caret"></span></a>
               <ul class="dropdown-menu earnedDD"></ul>
             </li>
-
+            <li class="dropdown hide">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="statAvgTime"></span> <span class="caret"></span></a>
+              <ul class="dropdown-menu avgTimeDD"></ul>
+            </li>
+            
             <li><p class="navbar-text statAvg"></p></li>
             <li><a href="#" class="statStart"></a></li>
             <li><a href="#" class="statRecent"></a></li>
-            <li><p class="navbar-text statSearchEarned"></p></li>
           </ul>
 
         </div><!--/.nav-collapse -->
@@ -91,18 +94,18 @@
           <button class="sort btn btn-sm btn-primary col-sm-2 col-xs-2" data-sort="id">
             <span class="hidden-xs">Sort by </span>id
           </button>
-          <button class="sort btn btn-sm btn-primary col-sm-2 col-xs-2" data-sort="completed_at">
+          <button class="sort btn btn-sm btn-primary col-sm-2 col-xs-2" data-sort="completedDate">
             <span class="hidden-xs">Sort by </span>completed
           </button>
-           <button class="sort btn btn-sm btn-primary col-sm-2 col-xs-2" data-sort="price">
-            <span class="hidden-xs">Sort by </span>price
+           <button class="sort btn btn-sm btn-primary col-sm-2 col-xs-2" data-sort="earned">
+            <span class="hidden-xs">Sort by </span>earned
           </button>
            <button class="sort btn btn-sm btn-primary col-sm-2 col-xs-2" data-sort="result">
             <span class="hidden-xs">Sort by </span>result
-          </button>          
-           <button class="sort btn btn-sm btn-primary col-sm-4 col-xs-4" data-sort="price">
-            <span class="hidden-xs">Sort by </span>title
-          </button>            
+          </button>
+           <button class="sort btn btn-sm btn-primary col-sm-4 col-xs-4" data-sort="name">
+            <span class="hidden-xs">Sort by </span>name
+          </button>
           <hr>
           <ul class="list list-unstyled list-group text-center"></ul>
           <ul class="pagination"></ul>

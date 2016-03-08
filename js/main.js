@@ -5,16 +5,19 @@
 var options = {
   valueNames: [ 'id', { name: 'link', attr: 'href' },
                 { name: 'notes', attr: 'data-content'},
-                'completedDate', 'price', 'result', 'name', ],
+                { name: 'duration', attr: 'data-content'},
+                'completedDate', 'earned', 'result', 'name', ],
   page: 15,
   plugins: [ ListPagination({outerWindow: 1}) ],  
   item: '<li class="list-group-item"><div class="row">' +
         '<div class="col-sm-2 col-xs-2">' +
         '<a class="link" target="_blank"><span class="id"></span></a>' + 
         '</div><div class="col-sm-2 col-xs-2">' +
-        '<span class="completedDate"></span>' + 
+        '<span class="completedDate duration" data-placement="auto top" ' +
+        'data-toggle="popover"' +
+        'data-trigger="hover"></span>' +        
         '</div><div class="col-sm-2 col-xs-2">' +
-        '<span class="price"></span>' + 
+        '<span class="earned"></span>' + 
         '</div><div class="col-sm-2 col-xs-2">' +
         '<span class="result notes" data-placement="auto top" ' +
         'data-toggle="popover"' +
@@ -29,14 +32,27 @@ var options = {
 /**
  * this holds our user stats while we work on them before displaying
  */
-var stats = {
-  reviewCount: 0,
-  earned: 0,
-  avgEarned: 0,
-  startDate: moment('2999-01-01'),
-  recentDate: moment('1980-01-01'),
-  projects: []
-};
+var stats = {};
+resetStats(); //initial fill of our stats object
+
+function resetStats() {
+  stats = {
+    throttled: true,
+    reviewCount: 0,
+    earned: 0,
+    avgEarned: 0,
+    startDate: moment('2999-01-01'),
+    recentDate: moment('1980-01-01'),
+    duration: moment.duration(0),
+    avgDuration: 0,
+    projects: []
+  };
+}
+
+/**
+ * this holds our original user stats in case we need them again
+ */
+var staticStats = {};
 
 /**
  * parses a javascrip object and manipulates it some for use
@@ -51,47 +67,99 @@ var parseVals = function(vals) {
     //linkify id
     review.link = "https://review.udacity.com/#!/reviews/" + review.id;
     //date stuff
+    var dateAssn = moment(review.assigned_at);
     var dateComp = moment(review.completed_at);
+    var tempDur = moment.duration(dateComp.diff(dateAssn));
+    stats.duration.add(tempDur);
+    review.duration = "Time to finish: " + pad(tempDur.hours()) + ":" + pad(tempDur.minutes()) + ":" + pad(tempDur.seconds());
+
     if (stats.startDate.isAfter(dateComp, 'day')) stats.startDate = dateComp;
     if (stats.recentDate.isBefore(dateComp, 'day')) stats.recentDate = dateComp;
     review.completedDate = dateComp.format("L");
-    //pull the project name to top the top level
+    //pull the project name to the top level
     review.name = review.project.name;
     if (!nameInArr(review.name, stats.projects)) {
-      stats.projects.push({name: review.name, earned: 0, count: 0});
+      stats.projects.push({name: review.name, earned: 0,
+                           count: 0, duration: moment.duration(0)});
     }
     //money stuff
     var proj = findNameInArr(review.name, stats.projects);
+    proj[0].duration.add(tempDur);
     proj[0].earned += +review.price;
     proj[0].count += 1;
     stats.earned += +review.price;
-    review.price = numToMoney(+review.price);
+    review.earned = numToMoney(+review.price);
   });
   var earnedInt = parseInt(stats.earned);
-  if (''+earnedInt.length > 3) {
 
-  }
   //some format cleanup on stats to make them presentable
-  cleanStatsProjects(); //needs to be first as it relies on unmutated numbers
-  stats.reviewCount = numWithComs(stats.reviewCount);
-  stats.avgEarned = numToMoney(stats.earned / stats.reviewCount);
-  stats.earned = numToMoney(stats.earned);
-  stats.startDate = stats.startDate.format("l");
-  stats.recentDate = stats.recentDate.format("l");
+  cleanStats(); //needs to be first as it relies on unmutated numbers
+
   return ret;
+};
+
+/**
+ * parses the searchable list's current visible JS object to refigure stats
+ * @param  {object} vals javascript object containing Udacity data from JSON
+ * TODO: Remove the redundancies added here when adding stats that update on filter
+ */
+var reCalcStats = function() {
+  var curItems = userList.matchingItems;
+
+  resetStats();
+  stats.reviewCount = curItems.length;
+
+  curItems.forEach(function(reviewPar){
+    var review = reviewPar.values();
+    //date stuff
+    var dateAssn = moment(review.assigned_at);
+    var dateComp = moment(review.completed_at);
+    var tempDur = moment.duration(dateComp.diff(dateAssn));
+    stats.duration.add(tempDur);
+
+    if (stats.startDate.isAfter(dateComp, 'day')) stats.startDate = dateComp;
+    if (stats.recentDate.isBefore(dateComp, 'day')) stats.recentDate = dateComp;
+
+    if (!nameInArr(review.name, stats.projects)) {
+      stats.projects.push({name: review.name, earned: 0,
+                           count: 0, duration: moment.duration(0)});
+    }
+    //money stuff
+    var proj = findNameInArr(review.name, stats.projects);
+    proj[0].duration.add(tempDur);    
+    proj[0].earned += +review.price;
+    proj[0].count += 1;
+    stats.earned += +review.price;
+  });
+  var earnedInt = parseInt(stats.earned);
+
+  //some format cleanup on stats to make them presentable
+  cleanStats(); //needs to be first as it relies on unmutated numbers
 };
 
 /**
  * do some formatting on the stats.project subobject so
  * it is easier to display in the DOM
  */
-function cleanStatsProjects() {
+function cleanStats() {
+  //projects  
   stats.projects.forEach(function(project) {
     project.earnedPerc = '' + Math.round(project.earned / stats.earned * 1000) / 10 + '%';
-    project.countPerc = '' + Math.round(project.count / stats.reviewCount * 1000) / 10 + '%';    
+    project.countPerc = '' + Math.round(project.count / stats.reviewCount * 1000) / 10 + '%';
+    project.durationPerc = '' + Math.round(project.duration / stats.duration * 1000) / 10 + '%';
     project.earned = numToMoney(project.earned);
+    var pDur = moment.duration((project.duration/project.count));
+    project.avgDuration = pad(pDur.hours()) + ":" + pad(pDur.minutes()) + ":" + pad(pDur.seconds());
     project.count = numWithComs(project.count);
   });
+  //other
+  stats.reviewCount = numWithComs(stats.reviewCount);
+  stats.avgEarned = numToMoney(stats.earned / stats.reviewCount);
+  stats.earned = numToMoney(stats.earned);
+  stats.startDate = stats.startDate.format("l");
+  stats.recentDate = stats.recentDate.format("l");
+  var dur = moment.duration((stats.duration/stats.reviewCount));
+  stats.avgDuration = pad(dur.hours()) + ":" + pad(dur.minutes()) + ":" + pad(dur.seconds());
 }
 
 var userList = new List('reviews', options, '');
@@ -103,21 +171,12 @@ userList.on('updated', listUpdate);
  * TODO: consider a short throttle to avoid double updates
  */
 function listUpdate() {
-  handleHover();
-  updateSearchEarned();
-}
-
-/**
- * updates .statSearchEarned with the sum of matching projects
- */
-function updateSearchEarned() {
-  var sum = 0;
-  userList.matchingItems.forEach(function(item) {
-    sum += +item._values.price.substring(1);
-  });
-  var startStr = 'Search Sum: <span class="text-success">';
-  var endStr = ' (' + userList.matchingItems.length + ')</span>';
-  $('.statSearchEarned').html(startStr + numToMoney(sum) + endStr);
+  if(!stats.throttled) {
+    handleHover();
+    reCalcStats();
+    updateStats();
+    setTimeout(function(){stats.throttled = false;}, 100);
+  }
 }
 
 /**
@@ -125,15 +184,22 @@ function updateSearchEarned() {
  */
 function updateStats() {
   var spnSt = '<span class="text-success">';
+  var spanSt2 = '<span class="text-success notes" data-placement="auto bottom" ' +
+        'data-toggle="popover" data-trigger="hover" data-content="';
   $('.statCnt').html('Reviews: ' + spnSt + stats.reviewCount + '</span>');
   $('.statEarned').html('Earned: ' + spnSt + stats.earned + '</span>');
   $('.statAvg').html('Average: ' + spnSt + stats.avgEarned + '</span>');
-  $('.statStart').html('Earliest: ' + spnSt + stats.startDate + '</span>');
-  $('.statRecent').html('Latest: ' + spnSt + stats.recentDate + '</span>');
+  $('.statStart').html('Earliest: ' + spanSt2 + "Overall Earliest: " + 
+                       staticStats.startDate + '">' + stats.startDate + '</span>');
+  $('.statRecent').html('Latest: ' + spanSt2 + "Overall Latest: " +
+                        staticStats.recentDate + '">' + stats.recentDate + '</span>');
+  $('.statAvgTime').html('Average Time: ' + spnSt + stats.avgDuration + '</span>');
+
   //also apply dates to the date picker
   initDatePicker();
   var projStr = '';
   var projStr2 = '';
+  var projStr3 = '';
   var projPre = '<li><a href="#">';
   var projSuf = '</a></li>';
   stats.projects.forEach(function(project) {
@@ -142,10 +208,14 @@ function updateStats() {
     project.earnedPerc + ')' + projSuf;
     //count stuff
     projStr2 += projPre + project.name + ': ' + project.count + ' (' +  
-    project.countPerc + ')' + projSuf;    
+    project.countPerc + ')' + projSuf;
+    //duration stuff
+    projStr3 += projPre + project.name + ': ' + project.avgDuration + ' (' +  
+    project.durationPerc + ')' + projSuf;
   });
   $('.earnedDD').html(projStr);
   $('.countDD').html(projStr2);
+  $('.avgTimeDD').html(projStr3);
 }
 
 /**
@@ -181,6 +251,7 @@ function handleData(dataStr) {
   $('.dropdown').removeClass('hide');
   $('.navbar-brand').addClass('visible-xs');
   $('.search').focus();
+  staticStats = JSON.parse(JSON.stringify(stats));
   updateStats();
   handleHover();
 }
@@ -193,6 +264,7 @@ function handleData(dataStr) {
 function handleHover() {
   $('.notes:not([data-content="null"],[data-content=""])')
   .popover({container: 'body'}).addClass('hoverable');
+  $('.duration').popover({container: 'body'}).addClass('hoverable');
 }
 
 
@@ -304,21 +376,32 @@ $('#lastData').click(function(){
   else {
     $('#alert2').removeClass('hide');    
   }
+  setTimeout(function(){stats.throttled = false;}, 100);
 });
 
 /**
  * click handler for the earliest date in navbar
  */
 $('.statStart').click(function(){
-  $('.fromDate').datepicker('setDate', stats.startDate);
+  $('.fromDate').datepicker('setDate', staticStats.startDate);
 });
 
 /**
  * click handler for the recent date in navbar
  */
 $('.statRecent').click(function(){
-  $('.toDate').datepicker('setDate', stats.recentDate);
+  $('.toDate').datepicker('setDate', staticStats.recentDate);
 });
+
+/**
+ * Custom search keypress handler to allow restricting search 
+ * to specific fields only
+ */
+$('.search').keyup(function(){
+  userList.search(this.value,
+                  ['id', 'completedDate', 'earned', 'result', 'name']);
+});
+
 
 /**
  * runs when the page loads and checks if there is user data
@@ -330,3 +413,13 @@ $(function(){
     $('#lastData').removeClass('hide');
   }
 });
+
+/**
+ * pad a number to ensure it is 2 digits.
+ * Important: Assumes 1 or 2 digit string format number.
+ * @param  {string} str input string
+ * @return {string}     padded output string
+ */
+function pad(str) {
+  return ("0" + str).slice(-2);
+}
