@@ -17,7 +17,7 @@ copy($.ajax({
 .responseJSON)
  ```
   * Note: There is a small button at the top right of the web tool that will copy this code for you so you don't have to always come to the readme to get it.
-  * Note 2: opening the dev console changes based on your browser but for chrome it is `Control+Shift+K` in windows and `Command+Option+j` on a Mac.
+  * Note 2: opening the dev console changes based on your browser but for chrome it is `Control+Shift+J` in windows and `Command+Option+j` on a Mac.
 4. Wait for the console to print that data should be in the clipboard now.
 5. In the webpage/tool paste the JSON into the text box
 6. If you want to start over, just refresh the page by hitting F5.
