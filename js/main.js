@@ -28,7 +28,6 @@ var options = {
         '</li>'
 };
 
-
 /**
  * this holds our user stats while we work on them before displaying
  */
@@ -66,31 +65,22 @@ var parseVals = function(vals) {
   ret.forEach(function(review){
     //linkify id
     review.link = "https://review.udacity.com/#!/reviews/" + review.id;
+    //pull the project name to the top level
+    review.name = review.project.name;
+    review.earned = numToMoney(+review.price);
+    review.completedDate = moment(review.completed_at).format("L");
     //date stuff
     var dateAssn = moment(review.assigned_at);
     var dateComp = moment(review.completed_at);
     var tempDur = moment.duration(dateComp.diff(dateAssn));
-    stats.duration.add(tempDur);
-    review.duration = "Time to finish: " + pad(tempDur.hours()) + ":" + pad(tempDur.minutes()) + ":" + pad(tempDur.seconds());
 
-    if (stats.startDate.isAfter(dateComp, 'day')) stats.startDate = dateComp;
-    if (stats.recentDate.isBefore(dateComp, 'day')) stats.recentDate = dateComp;
-    review.completedDate = dateComp.format("L");
-    //pull the project name to the top level
-    review.name = review.project.name;
-    if (!nameInArr(review.name, stats.projects)) {
-      stats.projects.push({name: review.name, earned: 0,
-                           count: 0, duration: moment.duration(0)});
-    }
-    //money stuff
-    var proj = findNameInArr(review.name, stats.projects);
-    proj[0].duration.add(tempDur);
-    proj[0].earned += +review.price;
-    proj[0].count += 1;
-    stats.earned += +review.price;
-    review.earned = numToMoney(+review.price);
+    review.duration = "Time to finish: " + pad(tempDur.hours()) + ":" + 
+                      pad(tempDur.minutes()) + ":" + pad(tempDur.seconds());
+    review.rawDur = tempDur;
+
+    parseReviewStats(review);
+
   });
-  var earnedInt = parseInt(stats.earned);
 
   //some format cleanup on stats to make them presentable
   cleanStats(); //needs to be first as it relies on unmutated numbers
@@ -99,9 +89,7 @@ var parseVals = function(vals) {
 };
 
 /**
- * parses the searchable list's current visible JS object to refigure stats
- * @param  {object} vals javascript object containing Udacity data from JSON
- * TODO: Remove the redundancies added here when adding stats that update on filter
+ * parses the searchable list's current visible JS object to recalculate stats
  */
 var reCalcStats = function() {
   var curItems = userList.matchingItems;
@@ -109,33 +97,35 @@ var reCalcStats = function() {
   resetStats();
   stats.reviewCount = curItems.length;
 
-  curItems.forEach(function(reviewPar){
-    var review = reviewPar.values();
-    //date stuff
-    var dateAssn = moment(review.assigned_at);
-    var dateComp = moment(review.completed_at);
-    var tempDur = moment.duration(dateComp.diff(dateAssn));
-    stats.duration.add(tempDur);
-
-    if (stats.startDate.isAfter(dateComp, 'day')) stats.startDate = dateComp;
-    if (stats.recentDate.isBefore(dateComp, 'day')) stats.recentDate = dateComp;
-
-    if (!nameInArr(review.name, stats.projects)) {
-      stats.projects.push({name: review.name, earned: 0,
-                           count: 0, duration: moment.duration(0)});
-    }
-    //money stuff
-    var proj = findNameInArr(review.name, stats.projects);
-    proj[0].duration.add(tempDur);    
-    proj[0].earned += +review.price;
-    proj[0].count += 1;
-    stats.earned += +review.price;
+  curItems.forEach(function(reviewParent){
+    parseReviewStats(reviewParent.values());
   });
-  var earnedInt = parseInt(stats.earned);
 
   //some format cleanup on stats to make them presentable
   cleanStats(); //needs to be first as it relies on unmutated numbers
 };
+
+/**
+ * Parses stats out of a single review and adjusts the stats object
+ * @param  {object} review A single review object
+ */
+function parseReviewStats(review) {
+  stats.duration.add(review.rawDur);
+  var dateComp = moment(review.completed_at);
+  if (stats.startDate.isAfter(dateComp, 'day')) stats.startDate = dateComp;
+  if (stats.recentDate.isBefore(dateComp, 'day')) stats.recentDate = dateComp;
+
+  if (!nameInArr(review.name, stats.projects)) {
+    stats.projects.push({name: review.name, earned: 0,
+                         count: 0, duration: moment.duration(0)});
+  }
+  //money stuff
+  var proj = findNameInArr(review.name, stats.projects);
+  proj[0].duration.add(review.rawDur);
+  proj[0].earned += +review.price;
+  proj[0].count += 1;
+  stats.earned += +review.price;  
+}
 
 /**
  * do some formatting on the stats.project subobject so
@@ -168,7 +158,6 @@ userList.on('updated', listUpdate);
 
 /**
  * Handle items that should be run whne the list updates
- * TODO: consider a short throttle to avoid double updates
  */
 function listUpdate() {
   if(!stats.throttled) {
@@ -193,7 +182,7 @@ function updateStats() {
                        staticStats.startDate + '">' + stats.startDate + '</span>');
   $('.statRecent').html('Latest: ' + spanSt2 + "Overall Latest: " +
                         staticStats.recentDate + '">' + stats.recentDate + '</span>');
-  $('.statAvgTime').html('Average Time: ' + spnSt + stats.avgDuration + '</span>');
+  $('.statAvgTime').html('<span class="hidden-sm">Average </span>Time: ' + spnSt + stats.avgDuration + '</span>');
 
   //also apply dates to the date picker
   initDatePicker();
@@ -251,6 +240,7 @@ function handleData(dataStr) {
   $('.dropdown').removeClass('hide');
   $('.navbar-brand').addClass('visible-xs');
   $('.search').focus();
+  $('.copyCode').addClass('hide');
   staticStats = JSON.parse(JSON.stringify(stats));
   updateStats();
   handleHover();
@@ -394,12 +384,23 @@ $('.statRecent').click(function(){
 });
 
 /**
+ * click handler for the helper code button in navbar
+ */
+$('.copyCode').click(function(){
+  copyCodeToClipboard();
+  $(this).find('.fa').addClass('pulse');
+  setTimeout(function(){
+    $('.copyCode').find('.fa').removeClass('pulse');
+    }, 200);
+});
+
+/**
  * Custom search keypress handler to allow restricting search 
  * to specific fields only
  */
 $('.search').keyup(function(){
-  userList.search(this.value,
-                  ['id', 'completedDate', 'earned', 'result', 'name']);
+  var filterArr = ['id', 'completedDate', 'earned', 'result', 'name'];
+  userList.search(this.value, filterArr);
 });
 
 
@@ -415,6 +416,11 @@ $(function(){
 });
 
 /**
+ * initialize popover for navbar help buttons here so they are only done once
+ */
+$('.help').popover({container: 'body'});
+
+/**
  * pad a number to ensure it is 2 digits.
  * Important: Assumes 1 or 2 digit string format number.
  * @param  {string} str input string
@@ -422,4 +428,32 @@ $(function(){
  */
 function pad(str) {
   return ("0" + str).slice(-2);
+}
+
+/**
+ * Copies the helper code to user's clipboard silently
+ * No flash fallback or anything.  It is assumed reviewers
+ * are using a decent modern browser, preferably chrome
+ */
+function copyCodeToClipboard() {
+
+  //this works by adding a hidden element, copying from that
+  //and then removing the element when done.  Clunky but silent.
+    var aux = document.createElement("textarea");
+    
+    aux.cols = "400";
+    aux.rows = "100";
+
+    aux.value = "copy($.ajax({" +
+      "method: 'GET'," +
+      "url: 'https://review-api.udacity.com/api/v1/me/submissions/completed.json'," +
+      "headers: { Authorization: JSON.parse(localStorage.currentUser).token }," +
+      "async: false" +
+      "}).done(function(data){console.log('The data should now be in your clipboard " +
+      "and ready to paste into the tool');}).responseJSON)";
+
+    document.body.appendChild(aux);
+    aux.select();
+    document.execCommand("copy");
+    document.body.removeChild(aux);
 }

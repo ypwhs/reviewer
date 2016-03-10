@@ -20,6 +20,13 @@
     height: auto; !important;
 }
 
+.fa {
+  transition: all .1s linear;
+}
+.fa.pulse{
+    color: #8F7;
+    text-shadow: 0 0 0.4em #8F7;
+}
 .search {
     height: 30px;
 }

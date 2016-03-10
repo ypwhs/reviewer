@@ -18,6 +18,7 @@
         <link rel="stylesheet" href="css/bootstrap-theme.min.css">
         <link rel="stylesheet" href="css/main.css">
         <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
         <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
     </head>
@@ -50,10 +51,14 @@
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="statAvgTime"></span> <span class="caret"></span></a>
               <ul class="dropdown-menu avgTimeDD"></ul>
             </li>
-            
+
             <li><p class="navbar-text statAvg"></p></li>
             <li><a href="#" class="statStart"></a></li>
             <li><a href="#" class="statRecent"></a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#" class="copyCode help" data-placement="auto bottom" data-toggle="popover" data-content="Copy helper code to your clipboard for pasting into the Udacity review dashboard console (won't work in safari or old browsers)" data-trigger="hover"><i class="fa fa-lg fa-clipboard"></i></a></li>
+            <li><a href="https://github.com/simplydallas/udacityreviewparser/blob/gh-pages/readme.md" target="_blank" class="readMe help" data-placement="auto bottom" data-toggle="popover" data-content="Readme file (with step by step instructions)" data-trigger="hover"><i class="fa fa-lg fa-question"></i></a></li>
           </ul>
 
         </div><!--/.nav-collapse -->
@@ -69,10 +74,13 @@
         <div id="alert2" class="alert alert-danger hide">
           <strong>OOPS!</strong> The tool failed to get usable JSON from localstorage.  Try pasting new data in from Udacity.
         </div>
+
         <h3>Paste your JSON in this box then hit enter:</h3>
         <textarea id="jsonInput" class="form-control"></textarea>
         <hr>
-        <button id="lastData" class="btn btn-lg btn-primary center-block hide">Load locally stored data from your last visit</button>
+        <div class="text-center">
+          <button id="lastData" class="btn btn-lg btn-primary hide">Load locally stored data from your last visit</button>
+        </div>
       </div>
     </div>
 

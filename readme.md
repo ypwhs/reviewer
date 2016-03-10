@@ -12,10 +12,13 @@ copy($.ajax({
 	url: 'https://review-api.udacity.com/api/v1/me/submissions/completed.json',
 	headers: { Authorization: JSON.parse(localStorage.currentUser).token },
 	async: false
-}).responseJSON)
+})
+.done(function(data){console.log('The data should now be in your clipboard and ready to paste into the tool');})
+.responseJSON)
  ```
- 
-4. Wait for the console to echo the word `undefined` which means your result is now in your clipboard
+  * Note: There is a small button at the top right of the web tool that will copy this code for you so you don't have to always come to the readme to get it.
+  * Note 2: opening the dev console changes based on your browser but for chrome it is `Control+Shift+K` in windows and `Command+Option+j` on a Mac.
+4. Wait for the console to print that data should be in the clipboard now.
 5. In the webpage/tool paste the JSON into the text box
 6. If you want to start over, just refresh the page by hitting F5.
   * There is no clear function right now.
