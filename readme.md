@@ -7,7 +7,8 @@
   ```
   Windows: ctrl + F5
   Mac/Apple: Apple + R or command + R
-  Linux: F5```
+  Linux: F5
+  ```
 2. Open the [Udacity reviewer dashboard](https://review.udacity.com/#!/submissions/dashboard) and make sure you are logged in
 3. In the dev console (with the udacity dashboard in focus) paste the following code:
 
