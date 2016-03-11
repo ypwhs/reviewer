@@ -65,6 +65,7 @@ note: stats are based off current search and date filter.  This is throttled a l
 
 ### Possible enhancements (feel free to pull requests these or anything else you find useful and we will discuss it)
 
+* Add markdown support to notes fields so that notes and ocmments that originally used markdown look correct instead of being weirdly formatted.
 * Use of D3 for graph of earnings or other interesting data.
 * Decide max number of list items per page based on window height.
 * Earnings per hour of completion time.  Not sure about this one since completion time is thrown off by things like picking multiple reviews at once and isn't the same as earning per work hour.  May be more confusing than helpful.
