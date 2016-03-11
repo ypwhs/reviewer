@@ -292,17 +292,17 @@ function handleModal(id) {
       content += pre + '<a target="_blank" href="' + data.zipfile.url + '">Zip File</a></li>';
     }
     if (data.notes) {
-      content += pre + 'Student General Note: ' + data.notes + '</li>';
+      content += pre + 'Student General Note: ' + marked(data.notes) + '</li>';
     }
     if (data.general_comment) {
-      content += pre + 'Grader General Comment: ' + data.general_comment + '</li>';
+      content += pre + 'Grader General Comment: ' + marked(data.general_comment) + '</li>';
     }
     //start section that is likely to be null
     if (data.status_reason) {
-      content += pre + 'Status Reason: ' + data.status_reason + '</li>';
+      content += pre + 'Status Reason: ' + marked(data.status_reason) + '</li>';
     }
     if (data.result_reason) {
-      content += pre + 'Result Reason: ' + data.result_reason + '</li>';
+      content += pre + 'Result Reason: ' + marked(data.result_reason) + '</li>';
     }
     if (data.training_id) {
       content += pre + 'Training ID: ' + data.training_id + '</li>';
