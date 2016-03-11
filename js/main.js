@@ -283,10 +283,10 @@ function handleModal(id) {
     pre + 'Updated: ' + moment(data.updated_at).format('llll') + '</li>' +
     pre + data.duration + '</li>';
     if (data.repo_url) {
-      content += pre + '<a target="_blank" href="' + data.repo_url + '">Repo</a></li>';
+      content += pre + '<a target="_blank" href="' + data.repo_url + '">Student Repo</a></li>';
     }
     if (data.archive_url) {
-      content += pre + '<a target="_blank" href="' + data.archive_url + '">Zip Archive</a></li>';
+      content += pre + '<a target="_blank" href="' + data.archive_url + '">Student Zip Archive</a></li>';
     }
     // Removed until I can figure out if this is a valid url still
     // and if so, what the prefix is.
