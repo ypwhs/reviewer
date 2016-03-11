@@ -28,8 +28,10 @@ copy($.ajax({
 
 ### The following information is presented
 
-* review id (this is the default sort item and links to the original review)
-* date review completed
+* review id
+  * id is the default sort item and is in descending order
+  * a click on the id will opan a modal with detail information and links to the original review, zip file, and more.
+* date of review completion
   * Dates are in local format thanks to momentjs
   * The completion time for this project shows as a popover on hovering over the completion date
 * price associated with the review at the time it was completed
@@ -63,7 +65,6 @@ note: stats are based off current search and date filter.  This is throttled a l
 
 ### Possible enhancements (feel free to pull requests these or anything else you find useful and we will discuss it)
 
-* Show more data details as a modal popup or other measure outside of the current column list.
 * Use of D3 for graph of earnings or other interesting data.
 * Decide max number of list items per page based on window height.
 * Earnings per hour of completion time.  Not sure about this one since completion time is thrown off by things like picking multiple reviews at once and isn't the same as earning per work hour.  May be more confusing than helpful.
