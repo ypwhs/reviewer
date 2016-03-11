@@ -3,6 +3,11 @@
 ### Steps to get this working
 
 1. Download/clone this repository and open the index.html file or open the [live version here](https://simplydallas.github.io/udacityreviewparser/).  (live version is recommended)
+  * If you have already used this in the past and there has been an update, remember to force a refresh without browser cache.  The method for that depends but it is generally one of the following:
+  ```
+  Windows: ctrl + F5
+  Mac/Apple: Apple + R or command + R
+  Linux: F5```
 2. Open the [Udacity reviewer dashboard](https://review.udacity.com/#!/submissions/dashboard) and make sure you are logged in
 3. In the dev console (with the udacity dashboard in focus) paste the following code:
 
