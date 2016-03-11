@@ -286,11 +286,13 @@ function handleModal(id) {
       content += pre + '<a target="_blank" href="' + data.repo_url + '">Repo</a></li>';
     }
     if (data.archive_url) {
-      content += pre + '<a target="_blank" href="' + data.archive_url + '">Archive</a></li>';
+      content += pre + '<a target="_blank" href="' + data.archive_url + '">Zip Archive</a></li>';
     }
-    if (data.zipfile.url) {
-      content += pre + '<a target="_blank" href="' + data.zipfile.url + '">Zip File</a></li>';
-    }
+    // Removed until I can figure out if this is a valid url still
+    // and if so, what the prefix is.
+    // if (data.zipfile.url) {
+    //   content += pre + '<a target="_blank" href="' + data.zipfile.url + '">Zip File</a></li>';
+    // }
     if (data.notes) {
       content += pre + 'Student General Note: ' + marked(data.notes) + '</li>';
     }
