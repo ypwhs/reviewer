@@ -3,27 +3,27 @@
  * for the list itself when parsing in items from Udacity data
  */
 var options = {
-  valueNames: [ 'id', { name: 'link', attr: 'href' },
+  valueNames: [ 'id',
                 { name: 'notes', attr: 'data-content'},
                 { name: 'duration', attr: 'data-content'},
                 'completedDate', 'earned', 'result', 'name', ],
-  page: 15,
-  plugins: [ ListPagination({outerWindow: 1}) ],  
+  page: 20,
+  plugins: [ ListPagination({outerWindow: 1}) ],
   item: '<li class="list-group-item"><div class="row">' +
         '<div class="col-sm-2 col-xs-2">' +
-        '<a class="link" target="_blank"><span class="id"></span></a>' + 
+        '<a href="javascript:;" class="link"><span class="id"></span></a>' +
         '</div><div class="col-sm-2 col-xs-2">' +
         '<span class="completedDate duration" data-placement="auto top" ' +
         'data-toggle="popover"' +
-        'data-trigger="hover"></span>' +        
+        'data-trigger="hover"></span>' +
         '</div><div class="col-sm-2 col-xs-2">' +
-        '<span class="earned"></span>' + 
+        '<span class="earned"></span>' +
         '</div><div class="col-sm-2 col-xs-2">' +
         '<span class="result notes" data-placement="auto top" ' +
         'data-toggle="popover"' +
         'data-trigger="hover"></span>' +
         '</div><div class="col-sm-4 col-xs-4">' +
-        '<span class="name"></span>' + 
+        '<span class="name"></span>' +
         '</div></div>' +
         '</li>'
 };
@@ -74,7 +74,7 @@ var parseVals = function(vals) {
     var dateComp = moment(review.completed_at);
     var tempDur = moment.duration(dateComp.diff(dateAssn));
 
-    review.duration = "Time to finish: " + pad(tempDur.hours()) + ":" + 
+    review.duration = "Time to finish: " + pad(tempDur.hours()) + ":" +
                       pad(tempDur.minutes()) + ":" + pad(tempDur.seconds());
     review.rawDur = tempDur;
 
@@ -124,7 +124,7 @@ function parseReviewStats(review) {
   proj[0].duration.add(review.rawDur);
   proj[0].earned += +review.price;
   proj[0].count += 1;
-  stats.earned += +review.price;  
+  stats.earned += +review.price;
 }
 
 /**
@@ -132,7 +132,7 @@ function parseReviewStats(review) {
  * it is easier to display in the DOM
  */
 function cleanStats() {
-  //projects  
+  //projects
   stats.projects.forEach(function(project) {
     project.earnedPerc = '' + Math.round(project.earned / stats.earned * 1000) / 10 + '%';
     project.countPerc = '' + Math.round(project.count / stats.reviewCount * 1000) / 10 + '%';
@@ -161,9 +161,9 @@ userList.on('updated', listUpdate);
  */
 function listUpdate() {
   if(!stats.throttled) {
-    handleHover();
     reCalcStats();
     updateStats();
+    handleHover();
     setTimeout(function(){stats.throttled = false;}, 100);
   }
 }
@@ -178,7 +178,7 @@ function updateStats() {
   $('.statCnt').html('Reviews: ' + spnSt + stats.reviewCount + '</span>');
   $('.statEarned').html('Earned: ' + spnSt + stats.earned + '</span>');
   $('.statAvg').html('Average: ' + spnSt + stats.avgEarned + '</span>');
-  $('.statStart').html('Earliest: ' + spanSt2 + "Overall Earliest: " + 
+  $('.statStart').html('Earliest: ' + spanSt2 + "Overall Earliest: " +
                        staticStats.startDate + '">' + stats.startDate + '</span>');
   $('.statRecent').html('Latest: ' + spanSt2 + "Overall Latest: " +
                         staticStats.recentDate + '">' + stats.recentDate + '</span>');
@@ -189,17 +189,17 @@ function updateStats() {
   var projStr = '';
   var projStr2 = '';
   var projStr3 = '';
-  var projPre = '<li><a href="#">';
+  var projPre = '<li><a href="javascript:;">';
   var projSuf = '</a></li>';
   stats.projects.forEach(function(project) {
     //earned stuff
     projStr += projPre + project.name + ': ' + project.earned + ' (' +
     project.earnedPerc + ')' + projSuf;
     //count stuff
-    projStr2 += projPre + project.name + ': ' + project.count + ' (' +  
+    projStr2 += projPre + project.name + ': ' + project.count + ' (' +
     project.countPerc + ')' + projSuf;
     //duration stuff
-    projStr3 += projPre + project.name + ': ' + project.avgDuration + ' (' +  
+    projStr3 += projPre + project.name + ': ' + project.avgDuration + ' (' +
     project.durationPerc + ')' + projSuf;
   });
   $('.earnedDD').html(projStr);
@@ -212,7 +212,7 @@ function updateStats() {
  * that is used to input JSON data as text from Udacity
  */
 $('#jsonInput').keypress(function(event) {
-    // Check the keyCode and if the user pressed Enter (code = 13) 
+    // Check the keyCode and if the user pressed Enter (code = 13)
     if (event.keyCode == 13) {
       if(isJson(this.value)) {
         //store this data in case we want to reload it
@@ -252,11 +252,79 @@ function handleData(dataStr) {
  * is run again to ensure new elements have their popover
  */
 function handleHover() {
+  $('.popover').remove(); //be sure no popovers are stuck open
   $('.notes:not([data-content="null"],[data-content=""])')
   .popover({container: 'body'}).addClass('hoverable');
   $('.duration').popover({container: 'body'}).addClass('hoverable');
 }
 
+/**
+ * Fills the modal with review details and then shows it
+ * @param  {int} The review id to show in the modal
+ */
+function handleModal(id) {
+  var data = userList.get('id', id)[0].values();
+  var list = $('.modal-list');
+  var pre = '<li class="list-group-item">';
+  var content = pre + 'Review ID: ' + '<a target="_blank" href="' +
+                data.link + '">' + data.id + '</a></li>' +
+    pre + 'Project Title: ' + data.project.name +
+          ' (ID: ' + data.project_id + ')</li>' +
+    pre + 'Project Status: ' + data.status +
+          ' (Earned: ' + data.earned + ')</li>' +
+    pre + 'Grader: ' + data.grader.name +
+          ' (ID: ' + data.grader_id + ')</li>' +
+    pre + 'User: ' + data.user.name +
+          ' (ID: ' + data.user_id + ')</li>' +
+
+    pre + 'Created: ' + moment(data.created_at).format('llll') + '</li>' +
+    pre + 'Assigned: ' + moment(data.assigned_at).format('llll') + '</li>' +
+    pre + 'Completed: ' + moment(data.completed_at).format('llll') + '</li>' +
+    pre + 'Updated: ' + moment(data.updated_at).format('llll') + '</li>' +
+    pre + data.duration + '</li>';
+    if (data.repo_url) {
+      content += pre + '<a target="_blank" href="' + data.repo_url + '">Repo</a></li>';
+    }
+    if (data.archive_url) {
+      content += pre + '<a target="_blank" href="' + data.archive_url + '">Archive</a></li>';
+    }
+    if (data.zipfile.url) {
+      content += pre + '<a target="_blank" href="' + data.zipfile.url + '">Zip File</a></li>';
+    }
+    if (data.notes) {
+      content += pre + 'Student General Note: ' + data.notes + '</li>';
+    }
+    if (data.general_comment) {
+      content += pre + 'Grader General Comment: ' + data.general_comment + '</li>';
+    }
+    //start section that is likely to be null
+    if (data.status_reason) {
+      content += pre + 'Status Reason: ' + data.status_reason + '</li>';
+    }
+    if (data.result_reason) {
+      content += pre + 'Result Reason: ' + data.result_reason + '</li>';
+    }
+    if (data.training_id) {
+      content += pre + 'Training ID: ' + data.training_id + '</li>';
+    }
+    if (data.url) {
+      content += pre + 'URL: ' + data.url + '</li>';
+    }
+    if (data.annotation_urls.length > 0) {
+      content += pre + 'Annotation URLs: ' + annotation_urls + '</li>';
+    }
+    if (data.previous_submission_id) {
+      content += pre + 'URL: ' + data.previous_submission_id + '</li>';
+    }
+    if (data.nomination) {
+      content += pre + 'URL: ' + data.nomination + '</li>';
+    }
+    //end likely to be null section
+    content += pre + 'Udacity Key: ' + data.udacity_key + '</li>';
+
+  list.html(content);
+  $('.modal').modal();
+}
 
 /**
  * Check if an object is valid Udacity JSON in string format
@@ -364,7 +432,7 @@ $('#lastData').click(function(){
     handleData(oldData);
   }
   else {
-    $('#alert2').removeClass('hide');    
+    $('#alert2').removeClass('hide');
   }
   setTimeout(function(){stats.throttled = false;}, 100);
 });
@@ -372,21 +440,21 @@ $('#lastData').click(function(){
 /**
  * click handler for the earliest date in navbar
  */
-$('.statStart').click(function(){
+$('.statStart').click(function() {
   $('.fromDate').datepicker('setDate', staticStats.startDate);
 });
 
 /**
  * click handler for the recent date in navbar
  */
-$('.statRecent').click(function(){
+$('.statRecent').click(function() {
   $('.toDate').datepicker('setDate', staticStats.recentDate);
 });
 
 /**
  * click handler for the helper code button in navbar
  */
-$('.copyCode').click(function(){
+$('.copyCode').click(function() {
   copyCodeToClipboard();
   $(this).find('.fa').addClass('pulse');
   setTimeout(function(){
@@ -395,20 +463,28 @@ $('.copyCode').click(function(){
 });
 
 /**
- * Custom search keypress handler to allow restricting search 
+ * click handler for id links to open modal for that id
+ * set to inherit event from main list since these are
+ * dynamic appends
+ */
+$('#main-list').on('click', '.id', function() {
+  handleModal(this.innerHTML);
+});
+
+/**
+ * Custom search keypress handler to allow restricting search
  * to specific fields only
  */
-$('.search').keyup(function(){
+$('.search').keyup(function() {
   var filterArr = ['id', 'completedDate', 'earned', 'result', 'name'];
   userList.search(this.value, filterArr);
 });
-
 
 /**
  * runs when the page loads and checks if there is user data
  * in localStorage.  If so, unhide a button element
  */
-$(function(){
+$(function() {
   var oldData = localStorage.getItem('lastJSON');
   if (oldData != null) {
     $('#lastData').removeClass('hide');
@@ -440,7 +516,7 @@ function copyCodeToClipboard() {
   //this works by adding a hidden element, copying from that
   //and then removing the element when done.  Clunky but silent.
     var aux = document.createElement("textarea");
-    
+
     aux.cols = "400";
     aux.rows = "100";
 
