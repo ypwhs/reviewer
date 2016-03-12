@@ -256,8 +256,14 @@ $('#tokenInput').keypress(function(event) {
 function handleToken(token) {
   startSpin(200);
   localStorage.setItem('lastToken', token);
+
+  $.ajaxPrefilter(function(options) {
+      if (options.crossDomain && jQuery.support.cors) {
+          options.url = 'http://corsproxy-simplydallas.rhcloud.com/' + options.url;
+      }
+  });
   $.ajax({method: 'GET',
-    url: 'https://cors-anywhere.herokuapp.com/https://review-api.udacity.com/api/v1/me/submissions/completed.json',
+    url: 'https://review-api.udacity.com/api/v1/me/submissions/completed.json',
     headers: { Authorization: token }
   })
   .done(function(data){
@@ -276,7 +282,8 @@ function handleToken(token) {
   .fail(function(error){
     stopSpin();
     $('#alert3').removeClass('hide');
-    localStorage.removeItem('lastToken');
+    //TODO, decide if this should be permanently removed or not
+    //localStorage.removeItem('lastToken');
     $('#lastToken').addClass('hide');
   });
 }
@@ -606,6 +613,27 @@ function copyCodeToClipboard() {
     aux.select();
     document.execCommand("copy");
     document.body.removeChild(aux);
+}
+
+function refreshData() {
+  if (!myGlobal.loadingNow) {
+
+    var oldToken = localStorage.getItem('lastToken');
+    if (oldToken != null) {
+      resetStats();
+      handleToken(oldToken);
+    }
+    else{
+      var oldData = localStorage.getItem('lastData');
+      if (oldData != null) {
+        resetStats();
+        handleData(oldData);
+      }
+      else {
+        window.alert("No valid token or data found in localStorage!");
+      }      
+    }
+  }
 }
 
 /**
