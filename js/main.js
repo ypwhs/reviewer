@@ -219,7 +219,6 @@ $('#jsonInput').keypress(function(event) {
         localStorage.setItem('lastJSON', this.value);
         handleData(this.value);
         this.value = '';
-        setTimeout(function(){stats.throttled = false;}, 100);
       }
       else {
         this.value = '';
@@ -245,6 +244,8 @@ function handleData(dataStr) {
   staticStats = JSON.parse(JSON.stringify(stats));
   updateStats();
   handleHover();
+  //remove the throttle on filter updates to the navbar
+  setTimeout(function(){stats.throttled = false;}, 100);
 }
 
 /**
@@ -437,7 +438,6 @@ $('#lastData').click(function(){
   else {
     $('#alert2').removeClass('hide');
   }
-  setTimeout(function(){stats.throttled = false;}, 100);
 });
 
 /**
