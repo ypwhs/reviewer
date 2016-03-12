@@ -259,7 +259,7 @@ function handleToken(token) {
 
   $.ajaxPrefilter(function(options) {
       if (options.crossDomain && jQuery.support.cors) {
-          options.url = 'http://corsproxy-simplydallas.rhcloud.com/' + options.url;
+          options.url = 'https://corsproxy-simplydallas.rhcloud.com/' + options.url;
       }
   });
   $.ajax({method: 'GET',
