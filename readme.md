@@ -31,7 +31,7 @@ copy($.ajax({
 4. Wait for the console to print that data should be in the clipboard now. (no waiting is necessary for token use. It is instant)
 5. In the webpage/tool paste the JSON into the text box
 6. If you want to start over, just refresh the page by hitting F5.
-  * There is no clear function right now.
+  * If you used a token instead of JSON, there will be a small refresh icon in the top right that you can use to update data without reloading the page.
 7. Your data is stored locally on your pc.
   * If you refresh after the first use you should see a button that says `Load locally stored data you last used`.
   * This will not pull fresh data from Udacity but it will let you see your last loaded data without getting it and pasting it again.

@@ -302,6 +302,7 @@ function handleData(dataStr) {
   $('.navbar-brand').addClass('visible-xs');
   $('.search').focus();
   $('.copyCode').addClass('hide');
+  if(localStorage.getItem('lastToken') !== null) $('.refreshData').removeClass('hide');
   myGlobal.staticStats = JSON.parse(JSON.stringify(myGlobal.stats));
   updateStats();
   handleHover();
@@ -540,6 +541,17 @@ $('.copyCode').click(function() {
 });
 
 /**
+ * click handler for the data refresh in navbar
+ */
+$('.refreshData').click(function() {
+  refreshData();
+  $(this).find('.fa').addClass('pulse');
+  setTimeout(function(){
+    $('.refreshData').find('.fa').removeClass('pulse');
+    }, 200);  
+});
+
+/**
  * click handler for id links to open modal for that id
  * set to inherit event from main list since these are
  * dynamic appends
@@ -617,7 +629,6 @@ function copyCodeToClipboard() {
 
 function refreshData() {
   if (!myGlobal.loadingNow) {
-
     var oldToken = localStorage.getItem('lastToken');
     if (oldToken != null) {
       resetStats();
