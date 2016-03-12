@@ -219,6 +219,7 @@ $('#jsonInput').keypress(function(event) {
         localStorage.setItem('lastJSON', this.value);
         handleData(this.value);
         this.value = '';
+        setTimeout(function(){stats.throttled = false;}, 100);
       }
       else {
         this.value = '';
