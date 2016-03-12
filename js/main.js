@@ -41,6 +41,9 @@ var options = {
 
 resetStats(); //initial fill of our stats object
 
+/**
+ * sets myGlobal.stats back to clean values
+ */
 function resetStats() {
   myGlobal.stats = {
     throttled: true,
@@ -154,8 +157,13 @@ function cleanStats() {
   myGlobal.stats.avgDuration = pad(dur.hours()) + ":" + pad(dur.minutes()) + ":" + pad(dur.seconds());
 }
 
+//Instantiate the listjs list
 var userList = new List('reviews', options, '');
 
+/**
+ * userList event that fires on a LOT of other events
+ * This is throttled mildly when used to avoid rapid duplicate events
+ */
 userList.on('updated', listUpdate);
 
 /**
@@ -244,7 +252,6 @@ $('#tokenInput').keypress(function(event) {
 /**
  * Get JSON from a token using a CORS proxy
  * @param  {string} token user auth token from Udacity
- * TODO: add spinner while fetching JSON
  */
 function handleToken(token) {
   startSpin(200);
@@ -273,7 +280,6 @@ function handleToken(token) {
     $('#lastToken').addClass('hide');
   });
 }
-
 
 /**
  * initialization function that kicks off various tasks
@@ -403,7 +409,6 @@ function isJson(item) {
     return false;
 }
 
-
 /**
  * convert a number to monetary format with $ and commas
  * will also work with a number parsable string as input
@@ -425,7 +430,6 @@ function numWithComs(num) {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-
 /**
  * look for a given name in an array.  return true if found
  * @param  {string} name string to look for
@@ -437,7 +441,6 @@ function nameInArr(name, arr)
     var test = findNameInArr(name, arr);
     return (test.length > 0);
 }
-
 
 /**
  * look for a given name in an array.  The format of the array
@@ -466,6 +469,9 @@ function initDatePicker() {
   });;
 }
 
+/**
+ * Filters the review history list based on dates in the datepicker
+ */
 function filterListDates(){
   var f = moment($('.fromDate').datepicker('getDate')).subtract(1, 'day');
   var t = moment($('.toDate').datepicker('getDate')).add(1, 'd');
@@ -500,8 +506,6 @@ $('#lastToken').click(function(){
     handleToken(oldToken);
   }
 });
-
-
 
 /**
  * click handler for the earliest date in navbar
@@ -604,6 +608,12 @@ function copyCodeToClipboard() {
     document.body.removeChild(aux);
 }
 
+/**
+ * Begins an AJAX loading spinner after a set delay
+ * The delay is to avoid flashing it for very fast responses
+ * Also prevents further clicking actions on input boxes/buttons
+ * @param  {number} delay number of milliseconds to delay before spinning
+ */
 function startSpin(delay) {
     myGlobal.loadingNow = true;
 
@@ -615,6 +625,10 @@ function startSpin(delay) {
     }, delay);
 }
 
+/**
+ * Stops the AJAX loading spinner and removes any pending spin timeout
+ * Also restores clicking actions on input boxes/buttons
+ */
 function stopSpin() {
     clearTimeout(myGlobal.timerTimeout);
     myGlobal.spinner.stop();
