@@ -1,4 +1,15 @@
 /**
+ * A single object that will be globla exposed and house various sub objects
+ */
+var myGlobal = {
+  stats: {},
+  staticStats: {},
+  timerTimeout: null,
+  spinner: new Spinner(),
+  loadingNow: false
+};
+
+/**
  * options for listjs including an ugly html template to use
  * for the list itself when parsing in items from Udacity data
  */
@@ -28,14 +39,10 @@ var options = {
         '</li>'
 };
 
-/**
- * this holds our user stats while we work on them before displaying
- */
-var stats = {};
 resetStats(); //initial fill of our stats object
 
 function resetStats() {
-  stats = {
+  myGlobal.stats = {
     throttled: true,
     reviewCount: 0,
     earned: 0,
@@ -49,11 +56,6 @@ function resetStats() {
 }
 
 /**
- * this holds our original user stats in case we need them again
- */
-var staticStats = {};
-
-/**
  * parses a javascrip object and manipulates it some for use
  * in the searchable list
  * @param  {object} vals javascript object containing Udacity data from JSON
@@ -61,7 +63,7 @@ var staticStats = {};
  */
 var parseVals = function(vals) {
   var ret = JSON.parse(JSON.stringify(vals));
-  stats.reviewCount += ret.length; //total reviews
+  myGlobal.stats.reviewCount += ret.length; //total reviews
   ret.forEach(function(review){
     //linkify id
     review.link = "https://review.udacity.com/#!/reviews/" + review.id;
@@ -95,7 +97,7 @@ var reCalcStats = function() {
   var curItems = userList.matchingItems;
 
   resetStats();
-  stats.reviewCount = curItems.length;
+  myGlobal.stats.reviewCount = curItems.length;
 
   curItems.forEach(function(reviewParent){
     parseReviewStats(reviewParent.values());
@@ -110,21 +112,21 @@ var reCalcStats = function() {
  * @param  {object} review A single review object
  */
 function parseReviewStats(review) {
-  stats.duration.add(review.rawDur);
+  myGlobal.stats.duration.add(review.rawDur);
   var dateComp = moment(review.completed_at);
-  if (stats.startDate.isAfter(dateComp, 'day')) stats.startDate = dateComp;
-  if (stats.recentDate.isBefore(dateComp, 'day')) stats.recentDate = dateComp;
+  if (myGlobal.stats.startDate.isAfter(dateComp, 'day')) myGlobal.stats.startDate = dateComp;
+  if (myGlobal.stats.recentDate.isBefore(dateComp, 'day')) myGlobal.stats.recentDate = dateComp;
 
-  if (!nameInArr(review.name, stats.projects)) {
-    stats.projects.push({name: review.name, earned: 0,
+  if (!nameInArr(review.name, myGlobal.stats.projects)) {
+    myGlobal.stats.projects.push({name: review.name, earned: 0,
                          count: 0, duration: moment.duration(0)});
   }
   //money stuff
-  var proj = findNameInArr(review.name, stats.projects);
+  var proj = findNameInArr(review.name, myGlobal.stats.projects);
   proj[0].duration.add(review.rawDur);
   proj[0].earned += +review.price;
   proj[0].count += 1;
-  stats.earned += +review.price;
+  myGlobal.stats.earned += +review.price;
 }
 
 /**
@@ -133,23 +135,23 @@ function parseReviewStats(review) {
  */
 function cleanStats() {
   //projects
-  stats.projects.forEach(function(project) {
-    project.earnedPerc = '' + Math.round(project.earned / stats.earned * 1000) / 10 + '%';
-    project.countPerc = '' + Math.round(project.count / stats.reviewCount * 1000) / 10 + '%';
-    project.durationPerc = '' + Math.round(project.duration / stats.duration * 1000) / 10 + '%';
+  myGlobal.stats.projects.forEach(function(project) {
+    project.earnedPerc = '' + Math.round(project.earned / myGlobal.stats.earned * 1000) / 10 + '%';
+    project.countPerc = '' + Math.round(project.count / myGlobal.stats.reviewCount * 1000) / 10 + '%';
+    project.durationPerc = '' + Math.round(project.duration / myGlobal.stats.duration * 1000) / 10 + '%';
     project.earned = numToMoney(project.earned);
     var pDur = moment.duration((project.duration/project.count));
     project.avgDuration = pad(pDur.hours()) + ":" + pad(pDur.minutes()) + ":" + pad(pDur.seconds());
     project.count = numWithComs(project.count);
   });
   //other
-  stats.reviewCount = numWithComs(stats.reviewCount);
-  stats.avgEarned = numToMoney(stats.earned / stats.reviewCount);
-  stats.earned = numToMoney(stats.earned);
-  stats.startDate = stats.startDate.format("l");
-  stats.recentDate = stats.recentDate.format("l");
-  var dur = moment.duration((stats.duration/stats.reviewCount));
-  stats.avgDuration = pad(dur.hours()) + ":" + pad(dur.minutes()) + ":" + pad(dur.seconds());
+  myGlobal.stats.reviewCount = numWithComs(myGlobal.stats.reviewCount);
+  myGlobal.stats.avgEarned = numToMoney(myGlobal.stats.earned / myGlobal.stats.reviewCount);
+  myGlobal.stats.earned = numToMoney(myGlobal.stats.earned);
+  myGlobal.stats.startDate = myGlobal.stats.startDate.format("l");
+  myGlobal.stats.recentDate = myGlobal.stats.recentDate.format("l");
+  var dur = moment.duration((myGlobal.stats.duration/myGlobal.stats.reviewCount));
+  myGlobal.stats.avgDuration = pad(dur.hours()) + ":" + pad(dur.minutes()) + ":" + pad(dur.seconds());
 }
 
 var userList = new List('reviews', options, '');
@@ -160,11 +162,11 @@ userList.on('updated', listUpdate);
  * Handle items that should be run whne the list updates
  */
 function listUpdate() {
-  if(!stats.throttled) {
+  if(!myGlobal.stats.throttled) {
     reCalcStats();
     updateStats();
     handleHover();
-    setTimeout(function(){stats.throttled = false;}, 100);
+    setTimeout(function(){myGlobal.stats.throttled = false;}, 100);
   }
 }
 
@@ -175,14 +177,14 @@ function updateStats() {
   var spnSt = '<span class="text-success">';
   var spanSt2 = '<span class="text-success notes" data-placement="auto bottom" ' +
         'data-toggle="popover" data-trigger="hover" data-content="';
-  $('.statCnt').html('Reviews: ' + spnSt + stats.reviewCount + '</span>');
-  $('.statEarned').html('Earned: ' + spnSt + stats.earned + '</span>');
-  $('.statAvg').html('Average: ' + spnSt + stats.avgEarned + '</span>');
+  $('.statCnt').html('Reviews: ' + spnSt + myGlobal.stats.reviewCount + '</span>');
+  $('.statEarned').html('Earned: ' + spnSt + myGlobal.stats.earned + '</span>');
+  $('.statAvg').html('Average: ' + spnSt + myGlobal.stats.avgEarned + '</span>');
   $('.statStart').html('Earliest: ' + spanSt2 + "Overall Earliest: " +
-                       staticStats.startDate + '">' + stats.startDate + '</span>');
+                       myGlobal.staticStats.startDate + '">' + myGlobal.stats.startDate + '</span>');
   $('.statRecent').html('Latest: ' + spanSt2 + "Overall Latest: " +
-                        staticStats.recentDate + '">' + stats.recentDate + '</span>');
-  $('.statAvgTime').html('<span class="hidden-sm">Average </span>Time: ' + spnSt + stats.avgDuration + '</span>');
+                        myGlobal.staticStats.recentDate + '">' + myGlobal.stats.recentDate + '</span>');
+  $('.statAvgTime').html('<span class="hidden-sm">Average </span>Time: ' + spnSt + myGlobal.stats.avgDuration + '</span>');
 
   //also apply dates to the date picker
   initDatePicker();
@@ -191,7 +193,7 @@ function updateStats() {
   var projStr3 = '';
   var projPre = '<li><a href="javascript:;">';
   var projSuf = '</a></li>';
-  stats.projects.forEach(function(project) {
+  myGlobal.stats.projects.forEach(function(project) {
     //earned stuff
     projStr += projPre + project.name + ': ' + project.earned + ' (' +
     project.earnedPerc + ')' + projSuf;
@@ -213,7 +215,7 @@ function updateStats() {
  */
 $('#jsonInput').keypress(function(event) {
     // Check the keyCode and if the user pressed Enter (code = 13)
-    if (event.keyCode == 13) {
+    if (event.keyCode == 13 && !myGlobal.loadingNow) {
       if(isJson(this.value)) {
         //store this data in case we want to reload it
         localStorage.setItem('lastJSON', this.value);
@@ -226,6 +228,52 @@ $('#jsonInput').keypress(function(event) {
       }
     }
 });
+
+/**
+ * Keypress event to capture enter key in the textarea
+ * that is used to input api auth token as text from Udacity
+ */
+$('#tokenInput').keypress(function(event) {
+    // Check the keyCode and if the user pressed Enter (code = 13)
+    if (event.keyCode == 13 && !myGlobal.loadingNow) {
+      handleToken(this.value);
+      this.value = '';
+    }
+});
+
+/**
+ * Get JSON from a token using a CORS proxy
+ * @param  {string} token user auth token from Udacity
+ * TODO: add spinner while fetching JSON
+ */
+function handleToken(token) {
+  startSpin(200);
+  localStorage.setItem('lastToken', token);
+  $.ajax({method: 'GET',
+    url: 'https://cors-anywhere.herokuapp.com/https://review-api.udacity.com/api/v1/me/submissions/completed.json',
+    headers: { Authorization: token }
+  })
+  .done(function(data){
+    stopSpin();
+    var resJSON = JSON.stringify(data);
+    if(isJson(resJSON)) {
+      localStorage.setItem('lastJSON', resJSON);  
+      handleData(resJSON);
+    }
+    else {
+      $('#alert1').removeClass('hide');
+      localStorage.removeItem('lastToken');
+      $('#lastToken').addClass('hide');
+    }
+  })
+  .fail(function(error){
+    stopSpin();
+    $('#alert3').removeClass('hide');
+    localStorage.removeItem('lastToken');
+    $('#lastToken').addClass('hide');
+  });
+}
+
 
 /**
  * initialization function that kicks off various tasks
@@ -241,11 +289,11 @@ function handleData(dataStr) {
   $('.navbar-brand').addClass('visible-xs');
   $('.search').focus();
   $('.copyCode').addClass('hide');
-  staticStats = JSON.parse(JSON.stringify(stats));
+  myGlobal.staticStats = JSON.parse(JSON.stringify(myGlobal.stats));
   updateStats();
   handleHover();
   //remove the throttle on filter updates to the navbar
-  setTimeout(function(){stats.throttled = false;}, 100);
+  setTimeout(function(){myGlobal.stats.throttled = false;}, 100);
 }
 
 /**
@@ -406,8 +454,8 @@ function findNameInArr(name, arr) {
  * initialize the datepicker for date filtering and add an event listener
  */
 function initDatePicker() {
-  $('.fromDate').val(stats.startDate);
-  $('.toDate').val(stats.recentDate);
+  $('.fromDate').val(myGlobal.stats.startDate);
+  $('.toDate').val(myGlobal.stats.recentDate);
   $('.input-daterange').datepicker({
       //this will get local date format pattern from moment
       format: moment.localeData().longDateFormat('l').toLowerCase(),
@@ -431,27 +479,42 @@ function filterListDates(){
  * user data from localStorage
  */
 $('#lastData').click(function(){
-  var oldData = localStorage.getItem('lastJSON');
-  if (isJson(oldData)) {
-    handleData(oldData);
-  }
-  else {
-    $('#alert2').removeClass('hide');
+  if (!myGlobal.loadingNow) {
+    var oldData = localStorage.getItem('lastJSON');
+    if (isJson(oldData)) {
+      handleData(oldData);
+    }
+    else {
+      $('#alert2').removeClass('hide');
+    }
   }
 });
+
+/**
+ * click handler for the button that loads previously saved
+ * user data from localStorage
+ */
+$('#lastToken').click(function(){
+  if (!myGlobal.loadingNow) {
+    var oldToken = localStorage.getItem('lastToken');
+    handleToken(oldToken);
+  }
+});
+
+
 
 /**
  * click handler for the earliest date in navbar
  */
 $('.statStart').click(function() {
-  $('.fromDate').datepicker('setDate', staticStats.startDate);
+  $('.fromDate').datepicker('setDate', myGlobal.staticStats.startDate);
 });
 
 /**
  * click handler for the recent date in navbar
  */
 $('.statRecent').click(function() {
-  $('.toDate').datepicker('setDate', staticStats.recentDate);
+  $('.toDate').datepicker('setDate', myGlobal.staticStats.recentDate);
 });
 
 /**
@@ -492,6 +555,10 @@ $(function() {
   if (oldData != null) {
     $('#lastData').removeClass('hide');
   }
+  var oldToken = localStorage.getItem('lastToken');
+  if (oldToken != null) {
+    $('#lastToken').removeClass('hide');
+  }  
 });
 
 /**
@@ -535,4 +602,21 @@ function copyCodeToClipboard() {
     aux.select();
     document.execCommand("copy");
     document.body.removeChild(aux);
+}
+
+function startSpin(delay) {
+    myGlobal.loadingNow = true;
+
+    if (myGlobal.spinner == undefined ) {
+        myGlobal.spinner = new Spinner();
+    }
+    myGlobal.timerTimeout = setTimeout(function() { 
+        myGlobal.spinner.spin(document.getElementById('spin-target'));
+    }, delay);
+}
+
+function stopSpin() {
+    clearTimeout(myGlobal.timerTimeout);
+    myGlobal.spinner.stop();
+    myGlobal.loadingNow = false;
 }

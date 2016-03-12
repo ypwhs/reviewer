@@ -24,13 +24,18 @@ copy($.ajax({
  ```
   * Note: There is a small button at the top right of the web tool that will copy this code for you so you don't have to always come to the readme to get it.
   * Note 2: opening the dev console changes based on your browser but for chrome it is `Control+Shift+J` in windows and `Command+Option+j` on a Mac.
-4. Wait for the console to print that data should be in the clipboard now.
+  * If you prefer to use your token so that you don't have to keep doing this every time, instead paste this in the console:
+  ```
+  copy(JSON.parse(localStorage.currentUser).token)
+  ```  
+4. Wait for the console to print that data should be in the clipboard now. (no waiting is necessary for token use. It is instant)
 5. In the webpage/tool paste the JSON into the text box
 6. If you want to start over, just refresh the page by hitting F5.
   * There is no clear function right now.
 7. Your data is stored locally on your pc.
-  * If you refresh after the first use you should see a button that says `Load locally stored data from your last visit`.
+  * If you refresh after the first use you should see a button that says `Load locally stored data you last used`.
   * This will not pull fresh data from Udacity but it will let you see your last loaded data without getting it and pasting it again.
+  * If you are using the token method, you will see a button that says: `Get data from token you last used`.  This will fetch new data from Udacity without you having to go back to the site.  However, it uses a third proxy to get around CORS headers so don't use this if you feel uncomfortable with your data going through a middleman.
 
 ### The following information is presented
 
@@ -71,8 +76,7 @@ note: stats are based off current search and date filter.  This is throttled a l
 
 ### Possible enhancements (feel free to pull requests these or anything else you find useful and we will discuss it)
 
-* Make data refresh without pasting JSON all the time.
-  * Need Udacity to add CORs headers first, then a token could be saved and reused instead.
+* Switch data refresh to direct link once Udacity adds CORs headers to avoid the middleman.
 * Use of D3 for graph of earnings or other interesting data.
 * Decide max number of list items per page based on window height.
 

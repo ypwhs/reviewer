@@ -44,6 +44,12 @@
 	margin-top: 12px;
 }
 
+#spin-target {
+    position:fixed;
+    top:50%;
+    left:50%;
+}
+
 @media (min-width: 768px) {
     .navbar .navbar-nav {
         display: inline-block;
