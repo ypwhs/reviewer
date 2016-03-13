@@ -484,7 +484,7 @@ function filterListDates(){
   var f = moment($('.fromDate').datepicker('getDate')).subtract(1, 'day');
   var t = moment($('.toDate').datepicker('getDate')).add(1, 'd');
   userList.filter(function(item) {
-    return moment(item.values().completed_at).isBetween(f, t);
+    return moment(item.values().completed_at).isBetween(f, t, 'day');
   });
 }
 
