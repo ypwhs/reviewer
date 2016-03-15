@@ -262,8 +262,10 @@ function handleToken(token) {
           options.url = 'https://corsproxy-simplydallas.rhcloud.com/' + options.url;
       }
   });
+  var startDate = moment().subtract(10,'days').format();
   $.ajax({method: 'GET',
     url: 'https://review-api.udacity.com/api/v1/me/submissions/completed.json',
+    // data: { start_date: startDate},
     headers: { Authorization: token }
   })
   .done(function(data){
@@ -271,6 +273,10 @@ function handleToken(token) {
     var resJSON = JSON.stringify(data);
     if(isJson(resJSON)) {
       localStorage.setItem('lastJSON', resJSON);  
+      if(userList.size()) {
+        userList.clear();
+        resetStats();
+      }
       handleData(resJSON);
     }
     else {
@@ -465,8 +471,10 @@ function findNameInArr(name, arr) {
  * initialize the datepicker for date filtering and add an event listener
  */
 function initDatePicker() {
-  $('.fromDate').val(myGlobal.stats.startDate);
-  $('.toDate').val(myGlobal.stats.recentDate);
+  $('.fromDate').datepicker('setDate', myGlobal.staticStats.startDate);
+  $('.toDate').datepicker('setDate', myGlobal.staticStats.recentDate);
+  // in case there are invalid dates clear the filter to start
+  userList.filter();
   $('.input-daterange').datepicker({
       //this will get local date format pattern from moment
       format: moment.localeData().longDateFormat('l').toLowerCase(),
@@ -474,7 +482,7 @@ function initDatePicker() {
       autoclose: true
   }).on('changeDate', function(e) {
       filterListDates();
-  });;
+  }); 
 }
 
 /**
@@ -614,7 +622,7 @@ function copyCodeToClipboard() {
     aux.rows = "100";
 
     aux.value = "copy($.ajax({" +
-      "method: 'GET'," +
+      "method: 'POST'," +
       "url: 'https://review-api.udacity.com/api/v1/me/submissions/completed.json'," +
       "headers: { Authorization: JSON.parse(localStorage.currentUser).token }," +
       "async: false" +
@@ -631,12 +639,12 @@ function refreshData() {
   if (!myGlobal.loadingNow) {
     var oldToken = localStorage.getItem('lastToken');
     if (oldToken != null) {
-      resetStats();
       handleToken(oldToken);
     }
     else{
       var oldData = localStorage.getItem('lastData');
       if (oldData != null) {
+        userList.clear();
         resetStats();
         handleData(oldData);
       }
