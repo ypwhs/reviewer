@@ -274,8 +274,10 @@ function handleToken(token) {
     if(isJson(resJSON)) {
       localStorage.setItem('lastJSON', resJSON);  
       if(userList.size()) {
+        $('.search').val('');
         userList.clear();
         resetStats();
+        userList.search();
       }
       handleData(resJSON);
     }
@@ -471,18 +473,31 @@ function findNameInArr(name, arr) {
  * initialize the datepicker for date filtering and add an event listener
  */
 function initDatePicker() {
-  $('.fromDate').datepicker('setDate', myGlobal.staticStats.startDate);
-  $('.toDate').datepicker('setDate', myGlobal.staticStats.recentDate);
-  // in case there are invalid dates clear the filter to start
-  userList.filter();
-  $('.input-daterange').datepicker({
-      //this will get local date format pattern from moment
-      format: moment.localeData().longDateFormat('l').toLowerCase(),
-      todayHighlight: true,
-      autoclose: true
-  }).on('changeDate', function(e) {
-      filterListDates();
-  }); 
+  var updated = false;
+  var startNow = moment($('.fromDate').datepicker('getDate')).format("l");
+  if (startNow !== myGlobal.stats.startDate) {
+    $('.fromDate').datepicker('setDate', myGlobal.staticStats.startDate);
+    updated = true;
+  }
+  var endNow = moment($('.toDate').datepicker('getDate')).format("l");
+  if (endNow !== myGlobal.stats.recentDate) {
+    $('.toDate').datepicker('setDate', myGlobal.staticStats.recentDate);
+    updated = true;
+  }
+  //userList.filter() doesn't impact search but is useful if there are
+  //invalid dates user may want to see still.  It should not be run if no
+  //dates above were changed since it mucks with pagination.
+  if(updated) {
+    userList.filter();
+    $('.input-daterange').datepicker({
+        //this will get local date format pattern from moment
+        format: moment.localeData().longDateFormat('l').toLowerCase(),
+        todayHighlight: true,
+        autoclose: true
+    }).on('changeDate', function(e) {
+        filterListDates();
+    }); 
+  }
 }
 
 /**
