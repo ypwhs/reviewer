@@ -40,6 +40,14 @@
     border: 1px solid #ddd;
 }
 
+.list-group {
+    margin-bottom: 10px;
+}
+
+.pagination {
+    margin: 10px 0;
+}
+
 #reviewsRow {
 	margin-top: 12px;
 }

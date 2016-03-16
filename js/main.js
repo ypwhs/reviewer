@@ -5,6 +5,7 @@ var myGlobal = {
   stats: {},
   staticStats: {},
   timerTimeout: null,
+  resizeTimeout: null,
   spinner: new Spinner(),
   loadingNow: false
 };
@@ -18,7 +19,7 @@ var options = {
                 { name: 'notes', attr: 'data-content'},
                 { name: 'duration', attr: 'data-content'},
                 'completedDate', 'earned', 'result', 'name', ],
-  page: 20,
+  page: getPageSize(),
   plugins: [ ListPagination({outerWindow: 1}) ],
   item: '<li class="list-group-item"><div class="row">' +
         '<div class="col-sm-2 col-xs-2">' +
@@ -696,3 +697,33 @@ function stopSpin() {
     myGlobal.spinner.stop();
     myGlobal.loadingNow = false;
 }
+
+/**
+ * decides the number of items to show based on the current window
+ * innerHeight
+ * @return {number} the number of items to show
+ */
+function getPageSize() {
+  //assume a height of 32, but if we already have renderred items
+  //use their height since zoom throws it off
+  var itemSize = $('.list-group-item:first').outerHeight();
+  var itemSize = Math.max(itemSize, 32);
+  var rawNum = (window.innerHeight - 255) / itemSize;
+  return Math.max(rawNum, 5)  //show 5 items or more always
+}
+
+/**
+ * window resize event so that we can adjust list item number per
+ * page to fit any size window within reason
+ */
+window.onresize = function(){
+  clearTimeout(myGlobal.resizeTimeout);
+  //prevent scrollbar on resize and restore after resize ends
+  $('html, body').css('overflow-y', 'hidden');
+  //use 100ms timer to check when active resizing has ended
+  myGlobal.resizeTimeout = setTimeout(function(){
+    $('html, body').css('overflow-y', 'visible');
+    userList.page = getPageSize();
+    userList.update();
+  }, 100);
+};

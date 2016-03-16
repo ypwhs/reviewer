@@ -78,6 +78,5 @@ note: stats are based off current search and date filter.  This is throttled a l
 
 * Switch data refresh to direct link once Udacity adds CORs headers to avoid the middleman.
 * Use of D3 for graph of earnings or other interesting data.
-* Decide max number of list items per page based on window height.
 
 -Dallas Frank
