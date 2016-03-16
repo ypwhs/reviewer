@@ -58,6 +58,11 @@
     left:50%;
 }
 
+.row .col-xs-2.col-sm-2,
+.row .col-xs-4.col-sm-4 {
+    padding: 0 5px;
+}
+
 @media (min-width: 768px) {
     .navbar .navbar-nav {
         display: inline-block;
