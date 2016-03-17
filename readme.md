@@ -81,5 +81,6 @@ note: stats are based off current search and date filter.  This is throttled a l
 
 * Switch data refresh to direct link once Udacity adds CORs headers to avoid the middleman. (this is now automatic and will happen naturally if the headers are added.)
 * Use of D3 for graph of earnings or other interesting data.
+* Pull partial JSON on refresh and update existing data after initial page load instead of doing a full data pull every time.
 
 -Dallas Frank
