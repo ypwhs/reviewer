@@ -60,6 +60,8 @@
 
 .cell {
     padding: 0 5px;
+    white-space: nowrap;
+    overflow: hidden;    
 }
 
 @media (min-width: 768px) {

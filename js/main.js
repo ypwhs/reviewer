@@ -733,9 +733,6 @@ function stopSpin() {
 function getPageSize() {
   //assume a height of 32, but if we already have renderred items
   //use their height since zoom throws it off
-  //Too small a screen or too long a project name will cause 
-  //word wrapping which will also throw things off
-  //TODO: Consider truncating name when too long
   var itemSize = $('.list-group-item:first').outerHeight(true);
   itemSize = Math.max(itemSize, 32);
   var filterSize = $('.filter-row').outerHeight(true);
