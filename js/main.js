@@ -22,19 +22,19 @@ var options = {
   page: getPageSize(),
   plugins: [ ListPagination({outerWindow: 1}) ],
   item: '<li class="list-group-item"><div class="row">' +
-        '<div class="col-sm-2 col-xs-2">' +
+        '<div class="cell col-sm-2 col-xs-2">' +
         '<a href="javascript:;" class="link"><span class="id"></span></a>' +
-        '</div><div class="col-sm-2 col-xs-2">' +
+        '</div><div class="cell col-sm-2 col-xs-2">' +
         '<span class="completedDate duration" data-placement="auto top" ' +
         'data-toggle="popover"' +
         'data-trigger="hover"></span>' +
-        '</div><div class="col-sm-2 col-xs-2">' +
+        '</div><div class="cell col-sm-2 col-xs-2">' +
         '<span class="earned"></span>' +
-        '</div><div class="col-sm-2 col-xs-2">' +
+        '</div><div class="cell col-sm-2 col-xs-2">' +
         '<span class="result notes" data-placement="auto top" ' +
         'data-toggle="popover"' +
         'data-trigger="hover"></span>' +
-        '</div><div class="col-sm-4 col-xs-4">' +
+        '</div><div class="cell col-sm-4 col-xs-4">' +
         '<span class="name"></span>' +
         '</div></div>' +
         '</li>'
