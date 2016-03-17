@@ -169,7 +169,6 @@ var userList = new List('reviews', options, '');
  */
 userList.on('searchComplete', listUpdate);
 userList.on('filterComplete', listUpdate);
-userList.on('sortComplete', listUpdate);
 
 /**
  * Handle items that should be run whne the list updates
@@ -201,6 +200,7 @@ function updateStats() {
 
   //also apply dates to the date picker
   initDatePicker();
+  updateDatePicker();
   var projStr = '';
   var projStr2 = '';
   var projStr3 = '';
@@ -482,7 +482,22 @@ function findNameInArr(name, arr) {
  * initialize the datepicker for date filtering and add an event listener
  */
 function initDatePicker() {
-  var updated = false;
+  $('.input-daterange').datepicker({
+      //this will get local date format pattern from moment
+      todayBtn: "linked",
+      format: moment.localeData().longDateFormat('l').toLowerCase(),
+      todayHighlight: true,
+      autoclose: true
+  }).on('changeDate', function(e) {
+      filterListDates();
+  });
+}
+
+/**
+ * ensure datePicker has the correct dates in it after a list change
+ */
+function updateDatePicker() {
+  var update = false;
   var startNow = moment($('.fromDate').datepicker('getDate')).format("l");
   if (startNow !== myGlobal.stats.startDate) {
     $('.fromDate').datepicker('setDate', myGlobal.staticStats.startDate);
@@ -492,22 +507,15 @@ function initDatePicker() {
   if (endNow !== myGlobal.stats.recentDate) {
     $('.toDate').datepicker('setDate', myGlobal.staticStats.recentDate);
     updated = true;
-  }
-  //userList.filter() doesn't impact search but is useful if there are
-  //invalid dates user may want to see still.  It should not be run if no
-  //dates above were changed since it mucks with pagination.
+  }  
   if(updated) {
+    //userList.filter() doesn't impact search but is useful if there are
+    //invalid dates a user may want to see still.  It should not be run if no
+    //dates above were changed since it mucks with pagination.
     userList.filter();
-    $('.input-daterange').datepicker({
-        //this will get local date format pattern from moment
-        format: moment.localeData().longDateFormat('l').toLowerCase(),
-        todayHighlight: true,
-        autoclose: true
-    }).on('changeDate', function(e) {
-        filterListDates();
-    }); 
   }
 }
+
 
 /**
  * Filters the review history list based on dates in the datepicker
