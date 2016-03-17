@@ -673,7 +673,7 @@ function copyCodeToClipboard() {
     aux.rows = "100";
 
     aux.value = "copy($.ajax({" +
-      "method: 'POST'," +
+      "method: 'GET'," +
       "url: 'https://review-api.udacity.com/api/v1/me/submissions/completed.json'," +
       "headers: { Authorization: JSON.parse(localStorage.currentUser).token }," +
       "async: false" +
