@@ -83,7 +83,7 @@
 
       <h3>Paste your JSON in this box then hit enter:</h3>
       <textarea id="jsonInput" class="form-control"></textarea>
-      <h3>Or paste your token in this box then hit enter (warning, uses a CORS proxy so the data has a middleman):</h3>
+      <h3>Or paste your token in this box then hit enter (note: uses a CORS proxy set up by this tool's creator):</h3>
       <textarea id="tokenInput" class="form-control"></textarea>
       <hr>
       <div class="text-center">
@@ -96,11 +96,14 @@
   <div class="container">
     <div id="reviewsRow" class="row hide">
       <div id="reviews">
-        <div class="row filterRow">
-          <div class="col-sm-6">
-            <input class="search form-control" placeholder="Search" />
+        <div class="row filter-row">
+          <div class="col-sm-4 search-wrapper">
+            <input class="my-search form-control" placeholder="Strict Search" />
           </div>
-          <div class="col-sm-6">
+          <div class="col-sm-4 fuzzy-wrapper">
+            <input class="my-fuzzy-search form-control" placeholder="Fuzzy Search" />
+          </div>          
+          <div class="col-sm-4 date-wrapper">
             <div class="input-daterange input-group" id="datepicker">
               <input type="text" class="fromDate input-sm form-control" name="start" />
               <span class="input-group-addon">to</span>
@@ -108,22 +111,25 @@
             </div>
           </div>
         </div>
-        <button class="sort btn btn-sm btn-primary col-sm-2 col-xs-2" data-sort="id">
-          <span class="hidden-xs">Sort by </span>id
-        </button>
-        <button class="sort btn btn-sm btn-primary col-sm-2 col-xs-2" data-sort="completedDate">
-          <span class="hidden-xs">Sort by </span>completed
-        </button>
-         <button class="sort btn btn-sm btn-primary col-sm-2 col-xs-2" data-sort="earned">
-          <span class="hidden-xs">Sort by </span>earned
-        </button>
-         <button class="sort btn btn-sm btn-primary col-sm-2 col-xs-2" data-sort="result">
-          <span class="hidden-xs">Sort by </span>result
-        </button>
-         <button class="sort btn btn-sm btn-primary col-sm-4 col-xs-4" data-sort="name">
-          <span class="hidden-xs">Sort by </span>name
-        </button>
-        <hr>
+        <div class="row button-row">
+          <div class="col-sm-12 col-xs-12 button-wrapper">
+            <button class="sort btn btn-sm btn-primary col-sm-2 col-xs-2" data-sort="id">
+              <span class="hidden-xs">Sort by </span>id
+            </button>
+            <button class="sort btn btn-sm btn-primary col-sm-2 col-xs-2" data-sort="completedDate">
+              <span class="hidden-xs">Sort by </span>completed
+            </button>
+             <button class="sort btn btn-sm btn-primary col-sm-2 col-xs-2" data-sort="earned">
+              <span class="hidden-xs">Sort by </span>earned
+            </button>
+             <button class="sort btn btn-sm btn-primary col-sm-2 col-xs-2" data-sort="result">
+              <span class="hidden-xs">Sort by </span>result
+            </button>
+             <button class="sort btn btn-sm btn-primary col-sm-4 col-xs-4" data-sort="name">
+              <span class="hidden-xs">Sort by </span>name
+            </button>
+          </div>
+        </div>
         <ul class="list list-unstyled list-group text-center" id="main-list"></ul>
         <ul class="pagination"></ul>
       </div>
@@ -156,6 +162,7 @@
       <script src="js/vendor/bootstrap-datepicker.min.js"></script>
       <script src="js/vendor/list.js"></script>
       <script src="js/vendor/list.pagination.min.js"></script>
+      <script src="js/vendor/list.fuzzysearch.min.js"></script>
       <script src="js/vendor/marked.min.js"></script>
       <script src="js/vendor/spin.min.js"></script>
       <script src="js/main.js"></script>

@@ -6,6 +6,7 @@ var myGlobal = {
   staticStats: {},
   timerTimeout: null,
   resizeTimeout: null,
+  searchTimeout: null,
   spinner: new Spinner(),
   loadingNow: false
 };
@@ -19,8 +20,9 @@ var options = {
                 { name: 'notes', attr: 'data-content'},
                 { name: 'duration', attr: 'data-content'},
                 'completedDate', 'earned', 'result', 'name', ],
-  page: getPageSize(),
-  plugins: [ ListPagination({outerWindow: 1}) ],
+  page: 5,
+  plugins: [ ListPagination({outerWindow: 1}),
+             ListFuzzySearch() ],
   item: '<li class="list-group-item"><div class="row">' +
         '<div class="cell col-sm-2 col-xs-2">' +
         '<a href="javascript:;" class="link"><span class="id"></span></a>' +
@@ -162,10 +164,12 @@ function cleanStats() {
 var userList = new List('reviews', options, '');
 
 /**
- * userList event that fires on a LOT of other events
- * This is throttled mildly when used to avoid rapid duplicate events
+ * userList events that fire on a lot of updates
+ * There is a shared throttle when used to avoid rapid duplicate events
  */
-userList.on('updated', listUpdate);
+userList.on('searchComplete', listUpdate);
+userList.on('filterComplete', listUpdate);
+userList.on('sortComplete', listUpdate);
 
 /**
  * Handle items that should be run whne the list updates
@@ -315,6 +319,10 @@ function handleData(dataStr) {
   myGlobal.staticStats = JSON.parse(JSON.stringify(myGlobal.stats));
   updateStats();
   handleHover();
+  //fit the list to our current page state
+  userList.page = getPageSize();
+  userList.update();
+
   //remove the throttle on filter updates to the navbar
   setTimeout(function(){myGlobal.stats.throttled = false;}, 100);
 }
@@ -586,11 +594,30 @@ $('#main-list').on('click', '.id', function() {
 
 /**
  * Custom search keypress handler to allow restricting search
- * to specific fields only
+ * to specific fields only and throttle input
  */
-$('.search').keyup(function() {
-  var filterArr = ['id', 'completedDate', 'earned', 'result', 'name'];
-  userList.search(this.value, filterArr);
+$('.my-search').on('propertychange input', function() {
+  $('.my-fuzzy-search').val("");
+  clearTimeout(myGlobal.searchTimeout);
+  //use 200ms timer to check when active typing has ended
+  myGlobal.searchTimeout = setTimeout(function(){
+    var filterArr = ['id', 'completedDate', 'earned', 'result', 'name'];
+    userList.search($('.my-search').val(), filterArr);
+  }, 200);
+});
+
+/**
+ * Custom search keypress handler to allow restricting fuzzy-search
+ * to specific fields only and throttle input
+ */
+$('.my-fuzzy-search').on('propertychange input', function() {
+  $('.my-search').val("");
+  clearTimeout(myGlobal.searchTimeout);
+  //use 200ms timer to check when active typing has ended
+  myGlobal.searchTimeout = setTimeout(function(){
+    var filterArr = ['id', 'completedDate', 'earned', 'result', 'name'];
+    userList.fuzzySearch.search($('.my-fuzzy-search').val(), filterArr);
+  }, 200);  
 });
 
 /**
@@ -706,9 +733,21 @@ function stopSpin() {
 function getPageSize() {
   //assume a height of 32, but if we already have renderred items
   //use their height since zoom throws it off
-  var itemSize = $('.list-group-item:first').outerHeight();
-  var itemSize = Math.max(itemSize, 32);
-  var rawNum = (window.innerHeight - 255) / itemSize;
+  //Too small a screen or too long a project name will cause 
+  //word wrapping which will also throw things off
+  //TODO: Consider truncating name when too long
+  var itemSize = $('.list-group-item:first').outerHeight(true);
+  itemSize = Math.max(itemSize, 32);
+  var filterSize = $('.filter-row').outerHeight(true);
+  var buttonSize = $('.button-row').outerHeight(true);  
+  var pageSize = $('.pagination').outerHeight(true);
+  var navSize = $('#navbar').outerHeight(true);
+  var listMargins = 22;
+  var wiggleRoom = 25;
+  var baseSize = filterSize + buttonSize + pageSize +
+                 navSize + listMargins + wiggleRoom;
+
+  var rawNum = (window.innerHeight - baseSize) / itemSize;
   return Math.max(rawNum, 5)  //show 5 items or more always
 }
 
@@ -725,5 +764,6 @@ window.onresize = function(){
     $('html, body').css('overflow-y', 'visible');
     userList.page = getPageSize();
     userList.update();
+    userList.show(1, userList.page);
   }, 100);
 };

@@ -27,11 +27,11 @@
     color: #8F7;
     text-shadow: 0 0 0.4em #8F7;
 }
-.search {
+.my-search, .my-fuzzy-search {
     height: 30px;
 }
 
-.filterRow {
+.filter-row {
     margin-bottom: 5px;
 }
 
@@ -72,6 +72,18 @@
     .navbar .navbar-collapse {
         text-align: center;
     }
+
+    .search-wrapper {
+        padding-right: 5px;
+    }
+
+    .fuzzy-wrapper {
+        padding: 0 5px;
+    }    
+
+    .date-wrapper {
+        padding-left: 5px;
+    } 
 }
 @media (max-width: 1100px) {
 	.navbar .navbar-nav li p,

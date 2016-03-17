@@ -67,7 +67,10 @@ note: stats are based off current search and date filter.  This is throttled a l
 
 * There is a date filter.  This defaults to the earliest and most recent review seen but can be changed by clicking in the texbox and either typing a date or using the date picker.  All dates should be in your local format but bear in mind that the actual date information will be in Udacity's time-zone, which is Pacific US time.
 * You can click on the earliest and latest dates in the navbar to set your to or from filter back to the unfiltered dates quickly.
-* There is a search box where you can search for text from any of the visible data points to narrow down your results.  Search works on the current list filter so it will not break your date selection.
+* There are two search boxes where you can search for text from any of the visible data points to narrow down your results.
+  * Strict Search is your standard search that will only show things with `excd` in a field if you search for `excd` (so probably nothing).
+  * Fuzzy Search is a proximity search and works closer to what you see in a web search engine.  `excd` will return things like `exceeded` as well as anything that says `excd`.
+  * The two types of search are exclusive and only one can be used at a time but either search will work on the current list filter so it will not break your date filter selections.
 
 ### known issues and caveats
 
@@ -76,7 +79,7 @@ note: stats are based off current search and date filter.  This is throttled a l
 
 ### Possible enhancements (feel free to pull requests these or anything else you find useful and we will discuss it)
 
-* Switch data refresh to direct link once Udacity adds CORs headers to avoid the middleman.
+* Switch data refresh to direct link once Udacity adds CORs headers to avoid the middleman. (this is now automatic and will happen naturally if the headers are added.)
 * Use of D3 for graph of earnings or other interesting data.
 
 -Dallas Frank
