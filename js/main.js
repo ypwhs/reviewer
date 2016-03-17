@@ -8,6 +8,9 @@ var myGlobal = {
   resizeTimeout: null,
   searchTimeout: null,
   spinner: new Spinner(),
+  eventThrottle: 50,
+  sizeThrottle: 100,
+  searchThrottle: 200,
   loadingNow: false
 };
 
@@ -178,7 +181,7 @@ function listUpdate() {
     reCalcStats();
     updateStats();
     handleHover();
-    setTimeout(function(){myGlobal.stats.throttled = false;}, 100);
+    setTimeout(function(){myGlobal.stats.throttled = false;}, myGlobal.eventThrottle);
   }
 }
 
@@ -198,9 +201,6 @@ function updateStats() {
                         myGlobal.staticStats.recentDate + '">' + myGlobal.stats.recentDate + '</span>');
   $('.statAvgTime').html('<span class="hidden-sm">Average </span>Time: ' + spnSt + myGlobal.stats.avgDuration + '</span>');
 
-  //also apply dates to the date picker
-  initDatePicker();
-  updateDatePicker();
   var projStr = '';
   var projStr2 = '';
   var projStr3 = '';
@@ -220,6 +220,10 @@ function updateStats() {
   $('.earnedDD').html(projStr);
   $('.countDD').html(projStr2);
   $('.avgTimeDD').html(projStr3);
+
+  //also apply dates to the date picker
+  initDatePicker();
+  updateDatePicker();
 }
 
 /**
@@ -277,7 +281,7 @@ function handleToken(token) {
     stopSpin();
     var resJSON = JSON.stringify(data);
     if(isJson(resJSON)) {
-      localStorage.setItem('lastJSON', resJSON);  
+      localStorage.setItem('lastJSON', resJSON);
       if(userList.size()) {
         $('.search').val('');
         userList.clear();
@@ -317,14 +321,16 @@ function handleData(dataStr) {
   $('.copyCode').addClass('hide');
   if(localStorage.getItem('lastToken') !== null) $('.refreshData').removeClass('hide');
   myGlobal.staticStats = JSON.parse(JSON.stringify(myGlobal.stats));
-  updateStats();
-  handleHover();
   //fit the list to our current page state
   userList.page = getPageSize();
   userList.update();
 
+  updateStats();
+  handleHover();
+
+
   //remove the throttle on filter updates to the navbar
-  setTimeout(function(){myGlobal.stats.throttled = false;}, 100);
+  setTimeout(function(){myGlobal.stats.throttled = false;}, myGlobal.eventThrottle);
 }
 
 /**
@@ -497,7 +503,7 @@ function initDatePicker() {
  * ensure datePicker has the correct dates in it after a list change
  */
 function updateDatePicker() {
-  var update = false;
+  var updated = false;
   var startNow = moment($('.fromDate').datepicker('getDate')).format("l");
   if (startNow !== myGlobal.stats.startDate) {
     $('.fromDate').datepicker('setDate', myGlobal.staticStats.startDate);
@@ -507,7 +513,7 @@ function updateDatePicker() {
   if (endNow !== myGlobal.stats.recentDate) {
     $('.toDate').datepicker('setDate', myGlobal.staticStats.recentDate);
     updated = true;
-  }  
+  }
   if(updated) {
     //userList.filter() doesn't impact search but is useful if there are
     //invalid dates a user may want to see still.  It should not be run if no
@@ -588,7 +594,7 @@ $('.refreshData').click(function() {
   $(this).find('.fa').addClass('pulse');
   setTimeout(function(){
     $('.refreshData').find('.fa').removeClass('pulse');
-    }, 200);  
+    }, 200);
 });
 
 /**
@@ -625,7 +631,7 @@ $('.my-fuzzy-search').on('propertychange input', function() {
   myGlobal.searchTimeout = setTimeout(function(){
     var filterArr = ['id', 'completedDate', 'earned', 'result', 'name'];
     userList.fuzzySearch.search($('.my-fuzzy-search').val(), filterArr);
-  }, 200);  
+  }, myGlobal.searchThrottle);
 });
 
 /**
@@ -640,7 +646,7 @@ $(function() {
   var oldToken = localStorage.getItem('lastToken');
   if (oldToken != null) {
     $('#lastToken').removeClass('hide');
-  }  
+  }
 });
 
 /**
@@ -701,7 +707,7 @@ function refreshData() {
       }
       else {
         window.alert("No valid token or data found in localStorage!");
-      }      
+      }
     }
   }
 }
@@ -718,7 +724,7 @@ function startSpin(delay) {
     if (myGlobal.spinner == undefined ) {
         myGlobal.spinner = new Spinner();
     }
-    myGlobal.timerTimeout = setTimeout(function() { 
+    myGlobal.timerTimeout = setTimeout(function() {
         myGlobal.spinner.spin(document.getElementById('spin-target'));
     }, delay);
 }
@@ -744,7 +750,7 @@ function getPageSize() {
   var itemSize = $('.list-group-item:first').outerHeight(true);
   itemSize = Math.max(itemSize, 32);
   var filterSize = $('.filter-row').outerHeight(true);
-  var buttonSize = $('.button-row').outerHeight(true);  
+  var buttonSize = $('.button-row').outerHeight(true);
   var pageSize = $('.pagination').outerHeight(true);
   var navSize = $('#navbar').outerHeight(true);
   var listMargins = 22;
@@ -764,11 +770,11 @@ window.onresize = function(){
   clearTimeout(myGlobal.resizeTimeout);
   //prevent scrollbar on resize and restore after resize ends
   $('html, body').css('overflow-y', 'hidden');
-  //use 100ms timer to check when active resizing has ended
+  //use timer to check when active resizing has ended
   myGlobal.resizeTimeout = setTimeout(function(){
     $('html, body').css('overflow-y', 'visible');
     userList.page = getPageSize();
     userList.update();
     userList.show(1, userList.page);
-  }, 100);
+  }, myGlobal.sizeThrottle);
 };

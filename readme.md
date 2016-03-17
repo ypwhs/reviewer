@@ -74,6 +74,7 @@ note: stats are based off current search and date filter.  This is throttled a l
 
 ### known issues and caveats
 
+* Some events are fired multiple times when they should only be run once.  On my machine this is a negligble speed impact but mobile may be slow.  Some event path auditing to clean up the mess would be a good idea.
 * If you have a review without a valid completion date it will be filtered out regardless of your date range filter after the first change to the filter.  To get it back you have to refresh to see your list with no filter for now.
 * The average completion time may be odd for some reviews.  This stat is based on the duration between assigned time and completed time.  I have at least one review that shows a huge duration (5+ days).  I am not sure how common this is or if it is caused by resubmits or possibly reviews unassigned and reclaimed later.  Whatever the case, it throws off the average quite a bit when it happens for obvious reasons.
 
