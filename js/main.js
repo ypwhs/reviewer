@@ -2,16 +2,32 @@
  * A single object that will be globla exposed and house various sub objects
  */
 var myGlobal = {
+  //hold current stats
   stats: {},
+  //hold some unfiltered stats
   staticStats: {},
+  //timers
   timerTimeout: null,
   resizeTimeout: null,
   searchTimeout: null,
+  //hold ajax spinner
   spinner: new Spinner(),
+  //prevent rapid events in case an event loop sneaks in
   eventThrottle: 50,
+  //prevent window resize form firing anything until it stops
   sizeThrottle: 100,
-  searchThrottle: 200,
-  loadingNow: false
+  //prevent search from firing until typing slows a little
+  searchThrottle: 150,
+  //prevent trying to load new data while a data load is active
+  loadingNow: false,
+  //flag to prevent date picker events from firing date picker updates
+  datePickerActive: false,
+  //toggle picker event so dates can be edited without firing events
+  datePickerEnabled: false,
+  //prevent search and filter events from stepping on eachother
+  listUpdateActive: false,
+  //prevent filter events while search is already running
+  debug: false
 };
 
 /**
@@ -45,12 +61,18 @@ var options = {
         '</li>'
 };
 
-resetStats(); //initial fill of our stats object
+
+//Instantiate the listjs list
+var userList = new List('reviews', options, '');
+
+//initial fill of our stats object
+resetStats();
 
 /**
  * sets myGlobal.stats back to clean values
  */
 function resetStats() {
+  debug("reset stats triggered");
   myGlobal.stats = {
     throttled: true,
     reviewCount: 0,
@@ -62,6 +84,7 @@ function resetStats() {
     avgDuration: 0,
     projects: []
   };
+  debug("reset stats ended");
 }
 
 /**
@@ -71,6 +94,7 @@ function resetStats() {
  * @return {object} parsed and somewhat modified javascript object
  */
 var parseVals = function(vals) {
+  debug("parse vals triggered");
   var ret = JSON.parse(JSON.stringify(vals));
   myGlobal.stats.reviewCount += ret.length; //total reviews
   ret.forEach(function(review){
@@ -95,7 +119,7 @@ var parseVals = function(vals) {
 
   //some format cleanup on stats to make them presentable
   cleanStats(); //needs to be first as it relies on unmutated numbers
-
+  debug("parse vals ended (returned)");
   return ret;
 };
 
@@ -103,6 +127,7 @@ var parseVals = function(vals) {
  * parses the searchable list's current visible JS object to recalculate stats
  */
 var reCalcStats = function() {
+  debug("recalc stats triggered");
   var curItems = userList.matchingItems;
 
   resetStats();
@@ -114,6 +139,7 @@ var reCalcStats = function() {
 
   //some format cleanup on stats to make them presentable
   cleanStats(); //needs to be first as it relies on unmutated numbers
+  debug("recalc stats ended");
 };
 
 /**
@@ -143,6 +169,7 @@ function parseReviewStats(review) {
  * it is easier to display in the DOM
  */
 function cleanStats() {
+  debug("Clean stats triggered");
   //projects
   myGlobal.stats.projects.forEach(function(project) {
     project.earnedPerc = '' + Math.round(project.earned / myGlobal.stats.earned * 1000) / 10 + '%';
@@ -161,34 +188,29 @@ function cleanStats() {
   myGlobal.stats.recentDate = myGlobal.stats.recentDate.format("l");
   var dur = moment.duration((myGlobal.stats.duration/myGlobal.stats.reviewCount));
   myGlobal.stats.avgDuration = pad(dur.hours()) + ":" + pad(dur.minutes()) + ":" + pad(dur.seconds());
+  debug("Clean stats ended");
 }
-
-//Instantiate the listjs list
-var userList = new List('reviews', options, '');
-
-/**
- * userList events that fire on a lot of updates
- * There is a shared throttle when used to avoid rapid duplicate events
- */
-userList.on('searchComplete', listUpdate);
-userList.on('filterComplete', listUpdate);
 
 /**
  * Handle items that should be run whne the list updates
  */
-function listUpdate() {
+function listUpdate(triggeredBy) {
+  debug("list update triggered by " + triggeredBy +
+        ". throttle state: " + myGlobal.stats.throttled);
   if(!myGlobal.stats.throttled) {
     reCalcStats();
     updateStats();
     handleHover();
     setTimeout(function(){myGlobal.stats.throttled = false;}, myGlobal.eventThrottle);
   }
+  debug("list update ended");
 }
 
 /**
  * update the various navbar dom elements with stat information
  */
 function updateStats() {
+  debug("update stats triggered");
   var spnSt = '<span class="text-success">';
   var spanSt2 = '<span class="text-success notes" data-placement="auto bottom" ' +
         'data-toggle="popover" data-trigger="hover" data-content="';
@@ -222,48 +244,19 @@ function updateStats() {
   $('.avgTimeDD').html(projStr3);
 
   //also apply dates to the date picker
-  initDatePicker();
-  updateDatePicker();
+  //unless this event came from a date picker event
+  if (!myGlobal.datePickerActive) updateDatePicker();
+  debug("Update Stats ended");
 }
-
-/**
- * Keypress event to capture enter key in the textarea
- * that is used to input JSON data as text from Udacity
- */
-$('#jsonInput').keypress(function(event) {
-    // Check the keyCode and if the user pressed Enter (code = 13)
-    if (event.keyCode == 13 && !myGlobal.loadingNow) {
-      if(isJson(this.value)) {
-        //store this data in case we want to reload it
-        localStorage.setItem('lastJSON', this.value);
-        handleData(this.value);
-        this.value = '';
-      }
-      else {
-        this.value = '';
-        $('#alert1').removeClass('hide');
-      }
-    }
-});
-
-/**
- * Keypress event to capture enter key in the textarea
- * that is used to input api auth token as text from Udacity
- */
-$('#tokenInput').keypress(function(event) {
-    // Check the keyCode and if the user pressed Enter (code = 13)
-    if (event.keyCode == 13 && !myGlobal.loadingNow) {
-      handleToken(this.value);
-      this.value = '';
-    }
-});
 
 /**
  * Get JSON from a token using a CORS proxy
  * @param  {string} token user auth token from Udacity
  */
 function handleToken(token) {
+  debug("Handle Token triggered");
   startSpin(200);
+
   localStorage.setItem('lastToken', token);
 
   $.ajaxPrefilter(function(options) {
@@ -278,6 +271,10 @@ function handleToken(token) {
     headers: { Authorization: token }
   })
   .done(function(data){
+    //clear out any existing searches for the new data
+    debug("MOOOOOOOOOOOO");
+    $('.my-fuzzy-search').val('');
+    $('.my-search').val('');
     stopSpin();
     var resJSON = JSON.stringify(data);
     if(isJson(resJSON)) {
@@ -303,6 +300,7 @@ function handleToken(token) {
     //localStorage.removeItem('lastToken');
     $('#lastToken').addClass('hide');
   });
+  debug("Handle Token ended");
 }
 
 /**
@@ -311,6 +309,7 @@ function handleToken(token) {
  * @param  {string} dataStr [the JSON data in string format]
  */
 function handleData(dataStr) {
+  debug("Handle Data triggered");
   userList.add(parseVals(JSON.parse(dataStr)));
   userList.sort('id', { order: "desc" });
   $('.jumbotron').addClass('hide');
@@ -328,9 +327,9 @@ function handleData(dataStr) {
   updateStats();
   handleHover();
 
-
   //remove the throttle on filter updates to the navbar
   setTimeout(function(){myGlobal.stats.throttled = false;}, myGlobal.eventThrottle);
+  debug("Handle Data ended");
 }
 
 /**
@@ -339,10 +338,12 @@ function handleData(dataStr) {
  * is run again to ensure new elements have their popover
  */
 function handleHover() {
+  debug("Handle Hover triggered");
   $('.popover').remove(); //be sure no popovers are stuck open
   $('.notes:not([data-content="null"],[data-content=""])')
   .popover({container: 'body'}).addClass('hoverable');
   $('.duration').popover({container: 'body'}).addClass('hoverable');
+  debug("Handle Hover ended");
 }
 
 /**
@@ -350,6 +351,7 @@ function handleHover() {
  * @param  {int} The review id to show in the modal
  */
 function handleModal(id) {
+  debug("Handle Modal triggered");
   var data = userList.get('id', id)[0].values();
   var list = $('.modal-list');
   var pre = '<li class="list-group-item">';
@@ -413,32 +415,179 @@ function handleModal(id) {
 
   list.html(content);
   $('.modal').modal();
+  debug("Handle Modal ended");
+}
+
+
+/**
+ * initialize the datepicker for date filtering and add an event listener
+ */
+function initDatePicker() {
+  debug("init date picker triggered");
+  $('.input-daterange').datepicker({
+      //this will get local date format pattern from moment
+      todayBtn: "linked",
+      format: moment.localeData().longDateFormat('l').toLowerCase(),
+      todayHighlight: true,
+      autoclose: true
+  }).on('changeDate', function(e) {
+      if(myGlobal.datePickerEnabled) filterListDates();
+  });
+  debug("init date picker ended");
 }
 
 /**
- * Check if an object is valid Udacity JSON in string format
- * @param  {string} item [object to test]
- * @return {Boolean}
+ * ensure datePicker has the correct dates in it after a list change
  */
-function isJson(item) {
-    item = typeof item !== "string" ?
-        JSON.stringify(item) :
-        item;
+function updateDatePicker() {
+  debug("update date picker triggered");
+  //prevent unwanted events while we set dates
+  myGlobal.datePickerEnabled = false;
 
-    try {
-        item = JSON.parse(item);
-    } catch (e) {
-        return false;
+  var updated = false;
+  var startNow = moment($('.fromDate').datepicker('getDate')).format("l");
+  if (startNow !== myGlobal.stats.startDate) {
+    $('.fromDate').datepicker('setDate', myGlobal.staticStats.startDate);
+    updated = true;
+  }
+  var endNow = moment($('.toDate').datepicker('getDate')).format("l");
+  if (endNow !== myGlobal.stats.recentDate) {
+    $('.toDate').datepicker('setDate', myGlobal.staticStats.recentDate);
+    updated = true;
+  }
+  if(updated) {
+    //userList.filter() doesn't impact search but is useful if there are
+    //invalid dates a user may want to see still.  It should not be run if no
+    //dates above were changed since it mucks with pagination.  In the spirit
+    //of this being an ugly workaround for invalid dates in the data, also 
+    //turn off filter events if they are on temporarily
+    var oldState = myGlobal.listUpdateActive;
+    myGlobal.listUpdateActive = true;
+    userList.filter();
+    myGlobal.listUpdateActive = oldState;
+  }
+  //Now that things are set up, allow date picker events again
+  myGlobal.datePickerEnabled = true;
+  debug("update date picker ended");
+}
+
+/**
+ * Filters the review history list based on dates in the datepicker
+ */
+function filterListDates(){
+  debug("date filter triggered");
+  myGlobal.datePickerActive = true;
+  var f = moment($('.fromDate').datepicker('getDate')).subtract(1, 'day');
+  var t = moment($('.toDate').datepicker('getDate')).add(1, 'd');
+  userList.filter(function(item) {
+    return moment(item.values().completed_at).isBetween(f, t, 'day');
+  });
+  myGlobal.datePickerActive = false;
+  debug("date filter ended");
+}
+
+/**
+ * Copies the helper code to user's clipboard silently
+ * No flash fallback or anything.  It is assumed reviewers
+ * are using a decent modern browser
+ */
+function copyCodeToClipboard() {
+
+  //this works by adding a hidden element, copying from that
+  //and then removing the element when done.  Clunky but silent.
+    var aux = document.createElement("textarea");
+
+    aux.cols = "400";
+    aux.rows = "100";
+
+    aux.value = "copy($.ajax({" +
+      "method: 'GET'," +
+      "url: 'https://review-api.udacity.com/api/v1/me/submissions/completed.json'," +
+      "headers: { Authorization: JSON.parse(localStorage.currentUser).token }," +
+      "async: false" +
+      "}).done(function(data){console.log('The data should now be in your clipboard " +
+      "and ready to paste into the tool');}).responseJSON)";
+
+    document.body.appendChild(aux);
+    aux.select();
+    document.execCommand("copy");
+    document.body.removeChild(aux);
+}
+
+/**
+ * Either pulls data from ewxisting token or if one is not found
+ * resets data to the current stored data in localStorage
+ */
+function refreshData() {
+  if (!myGlobal.loadingNow) {
+    var oldToken = localStorage.getItem('lastToken');
+    if (oldToken != null) {
+      handleToken(oldToken);
     }
-
-    if (typeof item === "object" && item !== null) {
-      if (item[0].completed_at !== undefined) {
-        return true;
+    else{
+      var oldData = localStorage.getItem('lastData');
+      if (oldData != null) {
+        userList.clear();
+        resetStats();
+        handleData(oldData);
+      }
+      else {
+        window.alert("No valid token or data found in localStorage!");
       }
     }
-
-    return false;
+  }
 }
+
+/**
+ * Begins an AJAX loading spinner after a set delay
+ * The delay is to avoid flashing it for very fast responses
+ * Also prevents further clicking actions on input boxes/buttons
+ * @param  {number} delay number of milliseconds to delay before spinning
+ */
+function startSpin(delay) {
+    myGlobal.loadingNow = true;
+
+    if (myGlobal.spinner == undefined ) {
+        myGlobal.spinner = new Spinner();
+    }
+    myGlobal.timerTimeout = setTimeout(function() {
+        myGlobal.spinner.spin(document.getElementById('spin-target'));
+    }, delay);
+}
+
+/**
+ * Stops the AJAX loading spinner and removes any pending spin timeout
+ * Also restores clicking actions on input boxes/buttons
+ */
+function stopSpin() {
+    clearTimeout(myGlobal.timerTimeout);
+    myGlobal.spinner.stop();
+    myGlobal.loadingNow = false;
+}
+
+/**
+ * decides the number of items to show based on the current window
+ * innerHeight
+ * @return {number} the number of items to show
+ */
+function getPageSize() {
+  //assume a height of 32, but if we already have renderred items
+  //use their height since zoom throws it off
+  var itemSize = $('.list-group-item:first').outerHeight(true);
+  itemSize = Math.max(itemSize, 32);
+  var filterSize = $('.filter-row').outerHeight(true);
+  var buttonSize = $('.button-row').outerHeight(true);
+  var pageSize = $('.pagination').outerHeight(true);
+  var navSize = $('#navbar').outerHeight(true);
+  var listMargins = 22;
+  var wiggleRoom = 25;
+  var baseSize = filterSize + buttonSize + pageSize +
+                 navSize + listMargins + wiggleRoom;
+
+  var rawNum = (window.innerHeight - baseSize) / itemSize;
+  return Math.max(rawNum, 5)  //show 5 items or more always
+}
+
 
 /**
  * convert a number to monetary format with $ and commas
@@ -484,55 +633,42 @@ function findNameInArr(name, arr) {
   return $.grep(arr, function(e){ return e.name == name; });
 }
 
+
 /**
- * initialize the datepicker for date filtering and add an event listener
+ * Check if an object is valid Udacity JSON in string format
+ * @param  {string} item [object to test]
+ * @return {Boolean}
  */
-function initDatePicker() {
-  $('.input-daterange').datepicker({
-      //this will get local date format pattern from moment
-      todayBtn: "linked",
-      format: moment.localeData().longDateFormat('l').toLowerCase(),
-      todayHighlight: true,
-      autoclose: true
-  }).on('changeDate', function(e) {
-      filterListDates();
-  });
+function isJson(item) {
+    item = typeof item !== "string" ?
+        JSON.stringify(item) :
+        item;
+
+    try {
+        item = JSON.parse(item);
+    } catch (e) {
+        return false;
+    }
+
+    if (typeof item === "object" && item !== null) {
+      if (item[0].completed_at !== undefined) {
+        return true;
+      }
+    }
+
+    return false;
 }
 
 /**
- * ensure datePicker has the correct dates in it after a list change
+ * Simple debug helper so console log debugs can be left in but
+ * only trigger when a flag is on
+ * @param  {multiple} message what should be logged to the console
  */
-function updateDatePicker() {
-  var updated = false;
-  var startNow = moment($('.fromDate').datepicker('getDate')).format("l");
-  if (startNow !== myGlobal.stats.startDate) {
-    $('.fromDate').datepicker('setDate', myGlobal.staticStats.startDate);
-    updated = true;
-  }
-  var endNow = moment($('.toDate').datepicker('getDate')).format("l");
-  if (endNow !== myGlobal.stats.recentDate) {
-    $('.toDate').datepicker('setDate', myGlobal.staticStats.recentDate);
-    updated = true;
-  }
-  if(updated) {
-    //userList.filter() doesn't impact search but is useful if there are
-    //invalid dates a user may want to see still.  It should not be run if no
-    //dates above were changed since it mucks with pagination.
-    userList.filter();
-  }
+function debug(message) {
+  if (myGlobal.debug) console.log(message);
 }
 
-
-/**
- * Filters the review history list based on dates in the datepicker
- */
-function filterListDates(){
-  var f = moment($('.fromDate').datepicker('getDate')).subtract(1, 'day');
-  var t = moment($('.toDate').datepicker('getDate')).add(1, 'd');
-  userList.filter(function(item) {
-    return moment(item.values().completed_at).isBetween(f, t, 'day');
-  });
-}
+/******** click and event handlers ********/
 
 /**
  * click handler for the button that loads previously saved
@@ -611,13 +747,13 @@ $('#main-list').on('click', '.id', function() {
  * to specific fields only and throttle input
  */
 $('.my-search').on('propertychange input', function() {
-  $('.my-fuzzy-search').val("");
+  $('.my-fuzzy-search').val('');
   clearTimeout(myGlobal.searchTimeout);
   //use 200ms timer to check when active typing has ended
   myGlobal.searchTimeout = setTimeout(function(){
     var filterArr = ['id', 'completedDate', 'earned', 'result', 'name'];
     userList.search($('.my-search').val(), filterArr);
-  }, 200);
+  }, myGlobal.searchThrottle);
 });
 
 /**
@@ -625,7 +761,7 @@ $('.my-search').on('propertychange input', function() {
  * to specific fields only and throttle input
  */
 $('.my-fuzzy-search').on('propertychange input', function() {
-  $('.my-search').val("");
+  $('.my-search').val('');
   clearTimeout(myGlobal.searchTimeout);
   //use 200ms timer to check when active typing has ended
   myGlobal.searchTimeout = setTimeout(function(){
@@ -635,18 +771,35 @@ $('.my-fuzzy-search').on('propertychange input', function() {
 });
 
 /**
- * runs when the page loads and checks if there is user data
- * in localStorage.  If so, unhide a button element
+ * Keypress event to capture enter key in the textarea
+ * that is used to input JSON data as text from Udacity
  */
-$(function() {
-  var oldData = localStorage.getItem('lastJSON');
-  if (oldData != null) {
-    $('#lastData').removeClass('hide');
-  }
-  var oldToken = localStorage.getItem('lastToken');
-  if (oldToken != null) {
-    $('#lastToken').removeClass('hide');
-  }
+$('#jsonInput').keypress(function(event) {
+    // Check the keyCode and if the user pressed Enter (code = 13)
+    if (event.keyCode == 13 && !myGlobal.loadingNow) {
+      if(isJson(this.value)) {
+        //store this data in case we want to reload it
+        localStorage.setItem('lastJSON', this.value);
+        handleData(this.value);
+        this.value = '';
+      }
+      else {
+        this.value = '';
+        $('#alert1').removeClass('hide');
+      }
+    }
+});
+
+/**
+ * Keypress event to capture enter key in the textarea
+ * that is used to input api auth token as text from Udacity
+ */
+$('#tokenInput').keypress(function(event) {
+    // Check the keyCode and if the user pressed Enter (code = 13)
+    if (event.keyCode == 13 && !myGlobal.loadingNow) {
+      handleToken(this.value);
+      this.value = '';
+    }
 });
 
 /**
@@ -665,104 +818,6 @@ function pad(str) {
 }
 
 /**
- * Copies the helper code to user's clipboard silently
- * No flash fallback or anything.  It is assumed reviewers
- * are using a decent modern browser, preferably chrome
- */
-function copyCodeToClipboard() {
-
-  //this works by adding a hidden element, copying from that
-  //and then removing the element when done.  Clunky but silent.
-    var aux = document.createElement("textarea");
-
-    aux.cols = "400";
-    aux.rows = "100";
-
-    aux.value = "copy($.ajax({" +
-      "method: 'GET'," +
-      "url: 'https://review-api.udacity.com/api/v1/me/submissions/completed.json'," +
-      "headers: { Authorization: JSON.parse(localStorage.currentUser).token }," +
-      "async: false" +
-      "}).done(function(data){console.log('The data should now be in your clipboard " +
-      "and ready to paste into the tool');}).responseJSON)";
-
-    document.body.appendChild(aux);
-    aux.select();
-    document.execCommand("copy");
-    document.body.removeChild(aux);
-}
-
-function refreshData() {
-  if (!myGlobal.loadingNow) {
-    var oldToken = localStorage.getItem('lastToken');
-    if (oldToken != null) {
-      handleToken(oldToken);
-    }
-    else{
-      var oldData = localStorage.getItem('lastData');
-      if (oldData != null) {
-        userList.clear();
-        resetStats();
-        handleData(oldData);
-      }
-      else {
-        window.alert("No valid token or data found in localStorage!");
-      }
-    }
-  }
-}
-
-/**
- * Begins an AJAX loading spinner after a set delay
- * The delay is to avoid flashing it for very fast responses
- * Also prevents further clicking actions on input boxes/buttons
- * @param  {number} delay number of milliseconds to delay before spinning
- */
-function startSpin(delay) {
-    myGlobal.loadingNow = true;
-
-    if (myGlobal.spinner == undefined ) {
-        myGlobal.spinner = new Spinner();
-    }
-    myGlobal.timerTimeout = setTimeout(function() {
-        myGlobal.spinner.spin(document.getElementById('spin-target'));
-    }, delay);
-}
-
-/**
- * Stops the AJAX loading spinner and removes any pending spin timeout
- * Also restores clicking actions on input boxes/buttons
- */
-function stopSpin() {
-    clearTimeout(myGlobal.timerTimeout);
-    myGlobal.spinner.stop();
-    myGlobal.loadingNow = false;
-}
-
-/**
- * decides the number of items to show based on the current window
- * innerHeight
- * @return {number} the number of items to show
- */
-function getPageSize() {
-  //assume a height of 32, but if we already have renderred items
-  //use their height since zoom throws it off
-  var itemSize = $('.list-group-item:first').outerHeight(true);
-  itemSize = Math.max(itemSize, 32);
-  var filterSize = $('.filter-row').outerHeight(true);
-  var buttonSize = $('.button-row').outerHeight(true);
-  var pageSize = $('.pagination').outerHeight(true);
-  var navSize = $('#navbar').outerHeight(true);
-  var listMargins = 22;
-  var wiggleRoom = 25;
-  var baseSize = filterSize + buttonSize + pageSize +
-                 navSize + listMargins + wiggleRoom;
-
-  var rawNum = (window.innerHeight - baseSize) / itemSize;
-  return Math.max(rawNum, 5)  //show 5 items or more always
-}
-
-/**
  * window resize event so that we can adjust list item number per
  * page to fit any size window within reason
  */
@@ -778,3 +833,42 @@ window.onresize = function(){
     userList.show(1, userList.page);
   }, myGlobal.sizeThrottle);
 };
+
+/**
+ * userList events that fire on list changes
+ * Uses a shared throttle to avoid rapid duplicate events
+ */
+userList.on('searchComplete', function() { 
+  if (!myGlobal.listUpdateActive && !myGlobal.loadingNow) {
+    myGlobal.listUpdateActive = true;
+    listUpdate("search");
+    myGlobal.listUpdateActive = false;
+  }
+});
+userList.on('filterComplete', function() {
+  if (!myGlobal.listUpdateActive && !myGlobal.loadingNow) {
+    myGlobal.listUpdateActive = true;
+    listUpdate("filter");
+    myGlobal.listUpdateActive = false;    
+  }
+});
+
+
+/******** end click and event handlers ********/
+
+
+/**
+ * runs when the page loads and checks if there is user data
+ * in localStorage.  If so, unhide a button element
+ */
+$(function() {
+  var oldData = localStorage.getItem('lastJSON');
+  if (oldData != null) {
+    $('#lastData').removeClass('hide');
+  }
+  var oldToken = localStorage.getItem('lastToken');
+  if (oldToken != null) {
+    $('#lastToken').removeClass('hide');
+  }
+  initDatePicker();
+});
