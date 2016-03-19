@@ -412,8 +412,8 @@ function handleModal(id) {
     if (data.rating) {
       content += pre + 'Student Feedback Rating: ' + data.rating + '</li>';
     }
-    if (data.body) {
-      content += pre + 'Student Feedback Note: ' + marked(data.body) + '</li>';
+    if (data.feedback) {
+      content += pre + 'Student Feedback Note: ' + marked(data.feedback) + '</li>';
     }
     if (data.notes) {
       content += pre + 'Student General Note: ' + marked(data.notes) + '</li>';

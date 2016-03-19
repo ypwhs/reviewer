@@ -47,7 +47,7 @@ copy($.ajax({
   * The completion time for this project shows as a popover on hovering over the completion date
 * price associated with the review at the time it was completed
 * result of the review
-  * If the student left an initial note this will have a popover on hover containing that note
+  * If the student left feedback, this will have a popover on hover containing the rating and any feedback note
 * The name of the project reviewed
 
 #### Basic overall stats are shown on the navbar / header
@@ -80,8 +80,8 @@ note: stats are based off current search and date filter.  This is throttled a l
 
 ### Possible enhancements (feel free to pull requests these or anything else you find useful and we will discuss it)
 
-* Add user feedback and star rating to reivews once the API allows for more than 30 days.
-  * Initial work done on this but more to do.
+* Possibly change result column to feedback with result hover instead of the other way around once more than 30 days of history is enabled for feedback (supposed to be next week).
+* Parse results to more reviewer familiar terms.  Meets instead of passes, etc.
 * Add a CSV export and possibly xlsx as well to allow easy import of review history into a spreadsheet like excel.
 * Switch data refresh to direct link once Udacity adds CORs headers to avoid the middleman.
   *This is now automatic and will happen naturally if the headers are added.
