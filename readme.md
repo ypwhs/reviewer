@@ -80,8 +80,14 @@ note: stats are based off current search and date filter.  This is throttled a l
 
 ### Possible enhancements (feel free to pull requests these or anything else you find useful and we will discuss it)
 
-* Switch data refresh to direct link once Udacity adds CORs headers to avoid the middleman. (this is now automatic and will happen naturally if the headers are added.)
+* Add user feedback and star rating to reivews once the API allows for more than 30 days.
+  * Initial work done on this but more to do.
+* Add a CSV export and possibly xlsx as well to allow easy import of review history into a spreadsheet like excel.
+* Switch data refresh to direct link once Udacity adds CORs headers to avoid the middleman.
+  *This is now automatic and will happen naturally if the headers are added.
 * Use of D3 for graph of earnings or other interesting data.
 * Pull partial JSON on refresh and update existing data after initial page load instead of doing a full data pull every time.
+* Possibly deprecate the manual JSON based load in favor of autoloading when there is a known token now that feedback will be included when pulled by token.
+  * Would fall back to stored JSON when no connection is available.
 
 -Dallas Frank
