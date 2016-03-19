@@ -27,7 +27,7 @@ var myGlobal = {
   //prevent search and filter events from stepping on eachother
   listUpdateActive: false,
   //prevent filter events while search is already running
-  debug: true
+  debug: false
 };
 
 /**
@@ -36,7 +36,7 @@ var myGlobal = {
  */
 var options = {
   valueNames: [ 'id',
-                { name: 'notes', attr: 'data-content'},
+                { name: 'full_feedback', attr: 'data-content'},
                 { name: 'duration', attr: 'data-content'},
                 'completedDate', 'earned', 'result', 'name', ],
   page: 5,
@@ -52,7 +52,7 @@ var options = {
         '</div><div class="cell col-sm-2 col-xs-2">' +
         '<span class="earned"></span>' +
         '</div><div class="cell col-sm-2 col-xs-2">' +
-        '<span class="result notes" data-placement="auto top" ' +
+        '<span class="result full_feedback" data-placement="auto top" ' +
         'data-toggle="popover"' +
         'data-trigger="hover"></span>' +
         '</div><div class="cell col-sm-4 col-xs-4">' +
@@ -289,6 +289,11 @@ function handleToken(token) {
            var review = lookup[feedback.submission_id];
            review.rating = feedback.rating;
            review.feedback = feedback.body;
+           var full_feedback = 'Rating: ' + review.rating + '/5';
+           if (review.feedback !== null) {
+            full_feedback += '.  Feedback: ' + review.feedback;
+           }
+           review.full_feedback = full_feedback;
       }
     }
     debug(data1);
@@ -362,7 +367,7 @@ function handleData(dataStr) {
 function handleHover() {
   debug("Handle Hover triggered");
   $('.popover').remove(); //be sure no popovers are stuck open
-  $('.notes:not([data-content="null"],[data-content=""])')
+  $('.full_feedback:not([data-content="null"],[data-content=""])')
   .popover({container: 'body'}).addClass('hoverable');
   $('.duration').popover({container: 'body'}).addClass('hoverable');
   debug("Handle Hover ended");
@@ -404,6 +409,12 @@ function handleModal(id) {
     // if (data.zipfile.url) {
     //   content += pre + '<a target="_blank" href="' + data.zipfile.url + '">Zip File</a></li>';
     // }
+    if (data.rating) {
+      content += pre + 'Student Feedback Rating: ' + data.rating + '</li>';
+    }
+    if (data.body) {
+      content += pre + 'Student Feedback Note: ' + marked(data.body) + '</li>';
+    }
     if (data.notes) {
       content += pre + 'Student General Note: ' + marked(data.notes) + '</li>';
     }
@@ -863,19 +874,20 @@ window.onresize = function(){
 userList.on('searchComplete', function() { 
   if (!myGlobal.listUpdateActive && !myGlobal.loadingNow) {
     myGlobal.listUpdateActive = true;
-    listUpdate("search");
+    listUpdate('search');
     myGlobal.listUpdateActive = false;
   }
 });
 userList.on('filterComplete', function() {
   if (!myGlobal.listUpdateActive && !myGlobal.loadingNow) {
     myGlobal.listUpdateActive = true;
-    listUpdate("filter");
+    listUpdate('filter');
     myGlobal.listUpdateActive = false;    
   }
 });
-//not throttled as only hover is updated
+//below events are not throttled
 userList.on('sortComplete', handleHover);
+userList.on('pageChangeComplete', handleHover);
 
 
 /******** end click and event handlers ********/
