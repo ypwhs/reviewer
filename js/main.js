@@ -27,7 +27,7 @@ var myGlobal = {
   //prevent search and filter events from stepping on eachother
   listUpdateActive: false,
   //prevent filter events while search is already running
-  debug: false
+  debug: true
 };
 
 /**
@@ -265,18 +265,40 @@ function handleToken(token) {
       }
   });
   var startDate = moment().subtract(10,'days').format();
-  $.ajax({method: 'GET',
-    url: 'https://review-api.udacity.com/api/v1/me/submissions/completed.json',
-    // data: { start_date: startDate},
-    headers: { Authorization: token }
-  })
-  .done(function(data){
+  $.when($.ajax({method: 'GET',
+      url: 'https://review-api.udacity.com/api/v1/me/submissions/completed.json',
+      // data: { start_date: startDate},
+      headers: { Authorization: token }
+    }),
+    $.ajax({method: 'GET',
+      url: 'https://review-api.udacity.com/api/v1/me/student_feedbacks.json',
+      // data: { start_date: startDate},
+      headers: { Authorization: token }
+    }))
+  .done(function(data1, data2){
+    //assuming both data pulls worked, merge feedback into
+    //the review data so we can work with a single object / JSON
+    if(data1[1] === "success" && data2[1] === "success") {
+      //shared key lookup object to hepl merging data
+      var lookup = {};
+      for (var i = 0, len = data1[0].length; i < len; i++) {
+          lookup[data1[0][i].id] = data1[0][i];
+      }
+      for (var i = 0, len = data2[0].length; i < len; i++) {
+           var feedback = data2[0][i];
+           var review = lookup[feedback.submission_id];
+           review.rating = feedback.rating;
+           review.feedback = feedback.body;
+      }
+    }
+    debug(data1);
+    debug(data2);
+
     //clear out any existing searches for the new data
-    debug("MOOOOOOOOOOOO");
     $('.my-fuzzy-search').val('');
     $('.my-search').val('');
     stopSpin();
-    var resJSON = JSON.stringify(data);
+    var resJSON = JSON.stringify(data1[0]);
     if(isJson(resJSON)) {
       localStorage.setItem('lastJSON', resJSON);
       if(userList.size()) {
@@ -852,6 +874,8 @@ userList.on('filterComplete', function() {
     myGlobal.listUpdateActive = false;    
   }
 });
+//not throttled as only hover is updated
+userList.on('sortComplete', handleHover);
 
 
 /******** end click and event handlers ********/
