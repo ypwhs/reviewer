@@ -26,6 +26,8 @@ var myGlobal = {
   datePickerEnabled: false,
   //prevent search and filter events from stepping on eachother
   listUpdateActive: false,
+  //how many days back should a refresh (not initial load) try to grab
+  refreshDays: 30,
   //prevent filter events while search is already running
   debug: false
 };
@@ -253,7 +255,7 @@ function updateStats() {
  * Get JSON from a token using a CORS proxy
  * @param  {string} token user auth token from Udacity
  */
-function handleToken(token) {
+function handleToken(token, isRefresh) {
   debug("Handle Token triggered");
   startSpin(200);
 
@@ -264,22 +266,29 @@ function handleToken(token) {
           options.url = 'https://corsproxy-simplydallas.rhcloud.com/' + options.url;
       }
   });
-  var startDate = moment().subtract(10,'days').format();
+  var ajaxOptions = {};
+  //if this is a refresh, we want to grab a smaller slice of info
+  //as old history is very unlikely to have changed
+  if (isRefresh) {
+    var startDate = moment().subtract(myGlobal.refreshDays,'days').format();
+    ajaxOptions.start_date = startDate;
+  }
+
   $.when($.ajax({method: 'GET',
       url: 'https://review-api.udacity.com/api/v1/me/submissions/completed.json',
-      // data: { start_date: startDate},
+      data: ajaxOptions,
       headers: { Authorization: token }
     }),
     $.ajax({method: 'GET',
       url: 'https://review-api.udacity.com/api/v1/me/student_feedbacks.json',
-      // data: { start_date: startDate},
+      data: ajaxOptions,
       headers: { Authorization: token }
     }))
   .done(function(data1, data2){
     //assuming both data pulls worked, merge feedback into
     //the review data so we can work with a single object / JSON
     if(data1[1] === "success" && data2[1] === "success") {
-      //shared key lookup object to hepl merging data
+      //shared key lookup object to help merging data
       var lookup = {};
       for (var i = 0, len = data1[0].length; i < len; i++) {
           lookup[data1[0][i].id] = data1[0][i];
@@ -302,6 +311,15 @@ function handleToken(token) {
     //clear out any existing searches for the new data
     $('.my-fuzzy-search').val('');
     $('.my-search').val('');
+
+    //if this is a refresh, merge the refresh data with any existing data
+    if (isRefresh) {
+      var oldData = localStorage.getItem('lastJSON');
+      if (oldData != null) {
+        data1[0] = mergeData(JSON.parse(oldData), data1[0])
+      }      
+    }
+
     stopSpin();
     var resJSON = JSON.stringify(data1[0]);
     if(isJson(resJSON)) {
@@ -555,7 +573,7 @@ function refreshData() {
   if (!myGlobal.loadingNow) {
     var oldToken = localStorage.getItem('lastToken');
     if (oldToken != null) {
-      handleToken(oldToken);
+      handleToken(oldToken, true);
     }
     else{
       var oldData = localStorage.getItem('lastData');
@@ -666,6 +684,35 @@ function findNameInArr(name, arr) {
   return $.grep(arr, function(e){ return e.name == name; });
 }
 
+/**
+ * Takes existing review data and merges in newer data
+ * Any old review is overwritten and any new review is appended
+ * @param  {object} oldData existing review data
+ * @param  {object} newData newer review data from refresh
+ * @return {object} merged review data
+ */
+function mergeData(oldData, newData) {
+  var oData = JSON.parse(JSON.stringify(oldData));
+  var nData = JSON.parse(JSON.stringify(newData));
+
+  //make a lookup helper to facilitate the merge
+  var lookup = {};
+  for (var i = 0, len = oData.length; i < len; i++) {
+      lookup[oData[i].id] = oData[i];
+  }
+  //loop through new data and either replace or append to old data
+  for (var i = 0, len = nData.length; i < len; i++) {
+       var newReview = nData[i];
+       var oldReview = lookup[newReview.id];
+       if (oldReview !== undefined) {
+        oldReview = newReview
+       }
+       else {
+        oData.push(newReview);
+       }
+  }
+  return oData;
+}
 
 /**
  * Check if an object is valid Udacity JSON in string format
@@ -836,9 +883,11 @@ $('#tokenInput').keypress(function(event) {
 });
 
 /**
- * initialize popover for navbar help buttons here so they are only done once
+ * initialize popover for navbar buttons here so they are only done once
  */
 $('.help').popover({container: 'body'});
+$('.refreshData').popover({container: 'body'});
+
 
 /**
  * pad a number to ensure it is 2 digits.
