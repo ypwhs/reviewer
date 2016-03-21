@@ -83,7 +83,6 @@ note: stats are based off current search and date filter.  This is throttled a l
 
 * Possibly change result column to feedback with result hover instead of the other way around once more than 30 days of history is enabled for feedback (supposed to be next week).
 * Parse results to more reviewer familiar terms.  Meets instead of passes, etc.
-* Add a CSV export and possibly xlsx as well to allow easy import of review history into a spreadsheet like excel.
 * Switch data refresh to direct link once Udacity adds CORs headers to avoid the middleman.
   *This is now automatic and will happen naturally if the headers are added.
 * Use of D3 for graph of earnings or other interesting data.

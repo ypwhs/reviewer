@@ -627,9 +627,10 @@ function getPageSize() {
   var filterSize = $('.filter-row').outerHeight(true);
   var buttonSize = $('.button-row').outerHeight(true);
   var pageSize = $('.pagination').outerHeight(true);
-  var navSize = $('#navbar').outerHeight(true);
+  var navSize = $('.navbar-header').outerHeight(true) || $('#navbar').outerHeight(true);
   var listMargins = 22;
   var wiggleRoom = 25;
+  debug(''+filterSize + ' ' + buttonSize + ' ' +pageSize + ' ' + navSize + ' ' + listMargins + ' ' + wiggleRoom);
   var baseSize = filterSize + buttonSize + pageSize +
                  navSize + listMargins + wiggleRoom;
 

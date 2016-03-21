@@ -5,102 +5,103 @@
    ========================================================================== */
 
 * {
-    font-family: 'Roboto', sans-serif; 
+  font-family: 'Roboto', sans-serif; 
 }
 
 .hoverable {
-    font-weight: 500;
-    cursor: help;
+  font-weight: 500;
+  cursor: help;
 }
 
 .popover {
-    min-width: 320px; !important;
-    max-width: 600px; !important;
-    width: auto; !important;
-    height: auto; !important;
+  min-width: 320px; !important;
+  max-width: 600px; !important;
+  width: auto; !important;
+  height: auto; !important;
 }
 
 .fa {
   transition: all .1s linear;
 }
 .fa.pulse{
-    color: #8F7;
-    text-shadow: 0 0 0.4em #8F7;
+  color: #8F7;
+  text-shadow: 0 0 0.4em #8F7;
 }
 .my-search, .my-fuzzy-search {
-    height: 30px;
+  height: 30px;
 }
 
 .filter-row {
-    margin-bottom: 5px;
+  margin-top: 8px;
+  margin-bottom: 5px;
 }
 
 .list-group-item {
-    padding: 5px 5px;
-    border: 1px solid #ddd;
+  padding: 5px 5px;
+  border: 1px solid #ddd;
 }
 
 .list-group {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 .pagination {
-    margin: 10px 0;
+  margin: 10px 0;
 }
 
 #reviewsRow {
-	margin-top: 12px;
-    min-width: 480px;
+  margin-top: 12px;
+  min-width: 480px;
 }
 
 #spin-target {
-    position:fixed;
-    top:50%;
-    left:50%;
+  position:fixed;
+  top:50%;
+  left:50%;
 }
 
 .cell {
-    padding: 0 5px;
-    white-space: nowrap;
-    overflow: hidden;    
+  padding: 0 5px;
+  white-space: nowrap;
+  overflow: hidden;    
 }
 
 @media (min-width: 768px) {
-    .navbar .navbar-nav {
-        display: inline-block;
-        float: none;
-        vertical-align: top;
-    }
+  .navbar .navbar-nav {
+    display: inline-block;
+    float: none;
+    vertical-align: top;
+  }
 
-    .navbar .navbar-collapse {
-        text-align: center;
-    }
+  .navbar .navbar-collapse {
+    text-align: center;
+  }
 
-    .search-wrapper {
-        padding-right: 5px;
-    }
+  .search-wrapper {
+    padding-right: 5px;
+  }
 
-    .fuzzy-wrapper {
-        padding: 0 5px;
-    }    
+  .fuzzy-wrapper {
+    padding: 0 5px;
+  }    
 
-    .date-wrapper {
-        padding-left: 5px;
-    } 
+  .date-wrapper {
+    padding-left: 5px;
+  } 
 }
 @media (max-width: 1100px) {
-	.navbar .navbar-nav li p,
-    .navbar .navbar-nav li a {
-        padding-left: 0;
-        padding-right: 0;        
-		margin-left: 5px;
-		margin-right: 5px;
-	}
+  .navbar .navbar-nav li p,
+  .navbar .navbar-nav li a {
+    padding-left: 0;
+    padding-right: 0;        
+    margin-left: 5px;
+    margin-right: 5px;
+  }
 }
 @media (max-width: 900px) {
-    .navbar .navbar-nav li p,
-    .navbar .navbar-nav li a {
-		margin-left: 2px;
-		margin-right: 2px;
-	}
+  .navbar .navbar-nav li p,
+  .navbar .navbar-nav li a {
+    margin-left: 2px;
+    margin-right: 2px;
+  }
 }
