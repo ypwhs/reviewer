@@ -259,7 +259,7 @@ function handleToken(token, isRefresh) {
   debug("Handle Token triggered");
   startSpin(200);
 
-  localStorage.setItem('lastToken', token);
+  saveToken(token);
 
   $.ajaxPrefilter(function(options) {
       if (options.crossDomain && jQuery.support.cors) {
@@ -314,7 +314,7 @@ function handleToken(token, isRefresh) {
 
     //if this is a refresh, merge the refresh data with any existing data
     if (isRefresh) {
-      var oldData = localStorage.getItem('lastJSON');
+      var oldData = curDataStr();
       if (oldData != null) {
         data1[0] = mergeData(JSON.parse(oldData), data1[0])
       }      
@@ -323,7 +323,7 @@ function handleToken(token, isRefresh) {
     stopSpin();
     var resJSON = JSON.stringify(data1[0]);
     if(isJson(resJSON)) {
-      localStorage.setItem('lastJSON', resJSON);
+      saveData(resJSON);
       if(userList.size()) {
         $('.search').val('');
         userList.clear();
@@ -334,7 +334,7 @@ function handleToken(token, isRefresh) {
     }
     else {
       $('#alert1').removeClass('hide');
-      localStorage.removeItem('lastToken');
+      deleteToken();
       $('#lastToken').addClass('hide');
     }
   })
@@ -342,7 +342,7 @@ function handleToken(token, isRefresh) {
     stopSpin();
     $('#alert3').removeClass('hide');
     //TODO, decide if this should be permanently removed or not
-    //localStorage.removeItem('lastToken');
+    //deleteToken();
     $('#lastToken').addClass('hide');
   });
   debug("Handle Token ended");
@@ -357,13 +357,11 @@ function handleData(dataStr) {
   debug("Handle Data triggered");
   userList.add(parseVals(JSON.parse(dataStr)));
   userList.sort('id', { order: "desc" });
-  $('.jumbotron').addClass('hide');
-  $('#reviewsRow').removeClass('hide');
-  $('.dropdown').removeClass('hide');
+  $('.jumbotron, .copyCode').addClass('hide');
+  $('.reviewsRow, .dropdown, .exportJSON, .exportCSV').removeClass('hide');
   $('.navbar-brand').addClass('visible-xs');
   $('.search').focus();
-  $('.copyCode').addClass('hide');
-  if(localStorage.getItem('lastToken') !== null) $('.refreshData').removeClass('hide');
+  if (curToken() !== '') $('.refreshData').removeClass('hide');
   myGlobal.staticStats = JSON.parse(JSON.stringify(myGlobal.stats));
   //fit the list to our current page state
   userList.page = getPageSize();
@@ -571,13 +569,13 @@ function copyCodeToClipboard() {
  */
 function refreshData() {
   if (!myGlobal.loadingNow) {
-    var oldToken = localStorage.getItem('lastToken');
-    if (oldToken != null) {
+    var oldToken = curToken();
+    if (oldToken !== '') {
       handleToken(oldToken, true);
     }
     else{
-      var oldData = localStorage.getItem('lastData');
-      if (oldData != null) {
+      var oldData = curDataStr();
+      if (oldData !== '') {
         userList.clear();
         resetStats();
         handleData(oldData);
@@ -739,6 +737,42 @@ function isJson(item) {
     return false;
 }
 
+function saveToken(token) {
+  localStorage.setItem('lastToken', token);
+}
+
+function deleteToken() {
+  localStorage.removeItem('lastToken');
+}
+
+function curToken() {
+  return localStorage.getItem('lastToken') || '';
+}
+
+function saveData(data) {
+  localStorage.setItem('lastJSON', data);
+}
+
+function curDataStr() {
+  return localStorage.getItem('lastJSON') || '';
+}
+
+function curData() {
+  return JSON.parse(curDataStr());
+}
+
+/**
+ * Visually flashes icons.  Used for click feedback
+ * @param  {object} el jQuery or DOM element object to pulse
+ */
+function pulse(el) {
+  if (!el.jquery) el = $(el);
+  el.addClass('pulse');
+  setTimeout(function(){
+    el.removeClass('pulse');
+    }, 200)
+}
+
 /**
  * Simple debug helper so console log debugs can be left in but
  * only trigger when a flag is on
@@ -756,7 +790,7 @@ function debug(message) {
  */
 $('#lastData').click(function(){
   if (!myGlobal.loadingNow) {
-    var oldData = localStorage.getItem('lastJSON');
+    var oldData = curDataStr();
     if (isJson(oldData)) {
       handleData(oldData);
     }
@@ -772,7 +806,7 @@ $('#lastData').click(function(){
  */
 $('#lastToken').click(function(){
   if (!myGlobal.loadingNow) {
-    var oldToken = localStorage.getItem('lastToken');
+    var oldToken = curToken();
     handleToken(oldToken);
   }
 });
@@ -795,22 +829,32 @@ $('.statRecent').click(function() {
  * click handler for the helper code button in navbar
  */
 $('.copyCode').click(function() {
+  pulse($(this).find('.fa'));
   copyCodeToClipboard();
-  $(this).find('.fa').addClass('pulse');
-  setTimeout(function(){
-    $('.copyCode').find('.fa').removeClass('pulse');
-    }, 200);
 });
 
 /**
  * click handler for the data refresh in navbar
  */
 $('.refreshData').click(function() {
+  pulse($(this).find('.fa'));
   refreshData();
-  $(this).find('.fa').addClass('pulse');
-  setTimeout(function(){
-    $('.refreshData').find('.fa').removeClass('pulse');
-    }, 200);
+});
+
+/**
+ * click handler for .json export in navbar
+ */
+$('.exportJSON').click(function() {
+  pulse($(this).find('.fa'));
+  exportJSON();
+});
+
+/**
+ * click handler for CSV export in navbar
+ */
+$('.exportCSV').click(function() {
+  pulse($(this).find('.fa'));
+  exportCSV(); 
 });
 
 /**
@@ -859,7 +903,7 @@ $('#jsonInput').keypress(function(event) {
     if (event.keyCode == 13 && !myGlobal.loadingNow) {
       if(isJson(this.value)) {
         //store this data in case we want to reload it
-        localStorage.setItem('lastJSON', this.value);
+        saveData(this.value);
         handleData(this.value);
         this.value = '';
       }
@@ -947,12 +991,12 @@ userList.on('pageChangeComplete', handleHover);
  * in localStorage.  If so, unhide a button element
  */
 $(function() {
-  var oldData = localStorage.getItem('lastJSON');
-  if (oldData != null) {
+  var oldData = curDataStr();
+  if (oldData !== '') {
     $('#lastData').removeClass('hide');
   }
-  var oldToken = localStorage.getItem('lastToken');
-  if (oldToken != null) {
+  var oldToken = curToken();
+  if (oldToken !== '') {
     $('#lastToken').removeClass('hide');
   }
   initDatePicker();
