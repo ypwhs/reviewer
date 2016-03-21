@@ -1044,5 +1044,6 @@ $(function() {
   initDatePicker();
   //remove the big white div covering everything now that we
   //are done doing things that will be flashy and ugly on load
-  $('#cover').hide();
+  //$('#cover').hide(400, 'opacity');
+  $('#cover').fadeOut(500);
 });
