@@ -38,6 +38,10 @@ copy($.ajax({
   * This will not pull fresh data from Udacity but it will let you see your last loaded data without getting it and pasting it again.
   * If you are using the token method, you will see a button that says: `Get data from token you last used`.  This will fetch new data from Udacity without you having to go back to the site.  However, it uses a third proxy to get around CORS headers so don't use this if you feel uncomfortable with your data going through a middleman.
 
+### Theme
+
+* The default theme can be toggled off to show a mostly white layout similar to the default Udacity or Bootstrap theme.  Just click the little paintbrush in the top right.  It will remember your preference for next time.
+
 ### The following information is presented
 
 * review id
@@ -75,7 +79,6 @@ note: stats are based off current search and date filter.  This is throttled a l
 
 ### known issues and caveats
 
-* Some events are fired multiple times when they should only be run once.  On my machine this is a negligble speed impact but mobile may be slow.  Some event path auditing to clean up the mess would be a good idea.
 * If you have a review without a valid completion date it will be filtered out regardless of your date range filter after the first change to the filter.  To get it back you have to refresh to see your list with no filter for now.
 * The average completion time may be odd for some reviews.  This stat is based on the duration between assigned time and completed time.  I have at least one review that shows a huge duration (5+ days).  I am not sure how common this is or if it is caused by resubmits or possibly reviews unassigned and reclaimed later.  Whatever the case, it throws off the average quite a bit when it happens for obvious reasons.
 
