@@ -8,8 +8,19 @@
   font-family: 'Roboto', sans-serif; 
 }
 
+html {
+    height: 100%;
+}
+body {
+    height: 100%;
+    margin: 0;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
 .hoverable {
   font-weight: 500;
+  color: #000;
   cursor: help;
 }
 
@@ -23,7 +34,7 @@
 .fa {
   transition: all .1s linear;
 }
-.fa.pulse{
+.pulse{
   color: #8F7;
   text-shadow: 0 0 0.4em #8F7;
 }
@@ -66,6 +77,18 @@
   overflow: hidden;    
 }
 
+.text-success {
+  color: #5CB85C;
+}
+
+.no-border {
+  border: 0;
+}
+
+.color-body {
+  background: radial-gradient(at center, #21A2E1, #123);
+}
+
 @media (min-width: 768px) {
   .navbar .navbar-nav {
     display: inline-block;
@@ -104,4 +127,97 @@
     margin-left: 2px;
     margin-right: 2px;
   }
+}
+
+/*covers page until everything is loaded*/
+#cover {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  top:0;
+  left: 0;
+  background: #fff;
+  z-index:9999;
+}
+
+/*navbar dark theme*/
+.navbar-mine {
+  background-color: #3a3a3a;
+  border-color:  #000;
+}
+.navbar-mine .navbar-brand {
+  color: #dddddd;
+}
+.navbar-mine .navbar-brand:hover,
+.navbar-mine .navbar-brand:focus {
+  color: #ffffff;
+}
+.navbar-mine .navbar-text {
+  color: #dddddd;
+}
+.navbar-mine .navbar-nav > li > a {
+  color: #dddddd;
+}
+.navbar-mine .navbar-nav > li > a:hover,
+.navbar-mine .navbar-nav > li > a:focus {
+  color: #ffffff;
+  background-color: #606060;  
+}
+.navbar-mine .navbar-nav > .active > a,
+.navbar-mine .navbar-nav > .active > a:hover,
+.navbar-mine .navbar-nav > .active > a:focus {
+  color: #ffffff;
+  background-color: #606060;
+}
+.navbar-mine .navbar-nav > .open > a,
+.navbar-mine .navbar-nav > .open > a:hover,
+.navbar-mine .navbar-nav > .open > a:focus {
+  color: #ffffff;
+  background-color: #606060;
+}
+.navbar-mine .navbar-toggle {
+  border-color:  #000;
+}
+.navbar-mine .navbar-toggle:hover,
+.navbar-mine .navbar-toggle:focus {
+  background-color: #606060;
+}
+.navbar-mine .navbar-toggle .icon-bar {
+  background-color: #dddddd;
+}
+.navbar-mine .navbar-collapse,
+.navbar-mine .navbar-form {
+  border-color: #000;
+}
+.navbar-mine .navbar-link {
+  color: #dddddd;
+}
+.navbar-mine .navbar-link:hover {
+  color: #ffffff;
+}
+
+.navbar-mine .li a:focus {
+  background-color: black;
+}
+
+@media (max-width: 767px) {
+  .navbar-mine .navbar-nav .open .dropdown-menu > li > a {
+    color: #dddddd;
+  }
+  .navbar-mine .navbar-nav .open .dropdown-menu > li > a:hover,
+  .navbar-mine .navbar-nav .open .dropdown-menu > li > a:focus {
+    color: #ffffff;
+  }
+  .navbar-mine .navbar-nav .open .dropdown-menu > .active > a,
+  .navbar-mine .navbar-nav .open .dropdown-menu > .active > a:hover,
+  .navbar-mine .navbar-nav .open .dropdown-menu > .active > a:focus {
+    color: #ffffff;
+    background-color: #606060;
+  }
+}
+
+.form-control:focus {   
+    border-color: rgba(31, 144, 200, 0.9);
+    box-shadow: 0 1px 1px rgba(31, 144, 200, 0.8) inset, 0 0 8px rgba(31, 144, 200, 0.6);
+    outline: 0 none !important;
 }

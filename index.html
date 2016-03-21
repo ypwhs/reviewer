@@ -18,15 +18,15 @@
           }
       </style>
       <link rel="stylesheet" href="css/bootstrap-theme.min.css">
-      <link rel="stylesheet" href="css/main.css">
       <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700" rel="stylesheet" type="text/css">
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
+      <link rel="stylesheet" href="css/main.css">
       <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
   </head>
-  <body>
+  <body class="color-body">
   <!-- Static navbar -->
-  <nav class="navbar navbar-default navbar-fixed-top">
+  <nav class="navbar navbar-mine navbar-fixed-top">
     <div class="container-fluid">
 
       <div class="navbar-header">
@@ -36,34 +36,35 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="#">Review Viewer</a>
+        <a class="navbar-brand" href="javascript:;">Review Viewer</a>
       </div>
 
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav">
           <li class="dropdown hide">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="statCnt"></span> <span class="caret"></span></a>
+            <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="statCnt stat"></span> <span class="caret"></span></a>
             <ul class="dropdown-menu countDD"></ul>
           </li>
           <li class="dropdown hide">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="statEarned"></span> <span class="caret"></span></a>
+            <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="statEarned stat"></span> <span class="caret"></span></a>
             <ul class="dropdown-menu earnedDD"></ul>
           </li>
           <li class="dropdown hide">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="statAvgTime"></span> <span class="caret"></span></a>
+            <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="statAvgTime stat"></span> <span class="caret"></span></a>
             <ul class="dropdown-menu avgTimeDD"></ul>
           </li>
 
-          <li><p class="navbar-text statAvg"></p></li>
-          <li><a href="#" class="statStart"></a></li>
-          <li><a href="#" class="statRecent"></a></li>
+          <li><p class="navbar-text statAvg stat"></p></li>
+          <li><a href="javascript:;" class="statStart stat"></a></li>
+          <li><a href="javascript:;" class="statRecent stat"></a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
           <li><a href="javascript:;" class="refreshData hide help" data-placement="auto bottom" data-toggle="popover" data-content="Refresh data from Udacity" data-trigger="hover"><i class="fa fa-lg fa-refresh"></i></a></li>
           <li><a href="javascript:;" class="exportCSV hide help" data-placement="auto bottom" data-toggle="popover" data-content="Export data to a CSV to use in Excel, Google Sheets, etc." data-trigger="hover"><i class="fa fa-lg fa-file-excel-o"></i></a></li>
           <li><a href="javascript:;" class="exportJSON hide help" data-placement="auto bottom" data-toggle="popover" data-content="Export data as a .json file" data-trigger="hover"><i class="fa fa-lg fa-file-text-o"></i></a></li>
-          <li><a href="#" class="copyCode help" data-placement="auto bottom" data-toggle="popover" data-content="Copy helper code to your clipboard for pasting into the Udacity review dashboard console (won't work in safari or old browsers)" data-trigger="hover"><i class="fa fa-lg fa-clipboard"></i></a></li>
-          <li><a href="https://github.com/simplydallas/udacityreviewparser/blob/gh-pages/readme.md" target="_blank" class="readMe help" data-placement="auto bottom" data-toggle="popover" data-content="Readme file (with step by step instructions)" data-trigger="hover"><i class="fa fa-lg fa-question"></i></a></li>     
+          <li><a href="javascript:;" class="copyCode help" data-placement="auto bottom" data-toggle="popover" data-content="Copy helper code to your clipboard for pasting into the Udacity review dashboard console (won't work in safari or old browsers)" data-trigger="hover"><i class="fa fa-lg fa-clipboard"></i></a></li>
+          <li><a href="https://github.com/simplydallas/udacityreviewparser/blob/gh-pages/readme.md" target="_blank" class="readMe help" data-placement="auto bottom" data-toggle="popover" data-content="Readme file (with step by step instructions)" data-trigger="hover"><i class="fa fa-lg fa-question"></i></a></li>
+          <li><a href="javascript:;" class="toggleTheme help" data-placement="auto bottom" data-toggle="popover" data-content="Toggle page theme on/off" data-trigger="hover"><i class="fa fa-lg fa-paint-brush"></i></a></li>
         </ul>
 
       </div><!--/.nav-collapse -->
@@ -72,7 +73,7 @@
 
 
   <div class="jumbotron">
-    <div class="container">      
+    <div class="container">
       <div id="alert1" class="alert alert-danger hide">
         <strong>OOPS!</strong> The tool failed to recognize your input as a proper JSON formatted input from Udacity.  Make sure you followed the instructions in the readme and try again.
       </div>
@@ -104,7 +105,7 @@
           </div>
           <div class="col-sm-4 fuzzy-wrapper">
             <input class="my-fuzzy-search form-control" placeholder="Fuzzy Search" />
-          </div>          
+          </div>
           <div class="col-sm-4 date-wrapper">
             <div class="input-daterange input-group" id="datepicker">
               <input type="text" class="fromDate input-sm form-control" name="start" />
@@ -154,6 +155,8 @@
       </div>
     </div>
   </div> <!-- end modal -->
+
+  <div id="cover"></div> <!-- covers page until loaded -->
 
   <!-- target for ajax loading spinner for centering-->
   <div id="spin-target"></div>

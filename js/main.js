@@ -317,7 +317,7 @@ function handleToken(token, isRefresh) {
       var oldData = curDataStr();
       if (oldData != null) {
         data1[0] = mergeData(JSON.parse(oldData), data1[0])
-      }      
+      }
     }
 
     stopSpin();
@@ -508,7 +508,7 @@ function updateDatePicker() {
     //userList.filter() doesn't impact search but is useful if there are
     //invalid dates a user may want to see still.  It should not be run if no
     //dates above were changed since it mucks with pagination.  In the spirit
-    //of this being an ugly workaround for invalid dates in the data, also 
+    //of this being an ugly workaround for invalid dates in the data, also
     //turn off filter events if they are on temporarily
     var oldState = myGlobal.listUpdateActive;
     myGlobal.listUpdateActive = true;
@@ -612,6 +612,36 @@ function stopSpin() {
     clearTimeout(myGlobal.timerTimeout);
     myGlobal.spinner.stop();
     myGlobal.loadingNow = false;
+}
+
+/**
+ * Enables and disables custom darker page theme
+ */
+function toggleTheme(firstLoad) {
+  var themeState = localStorage.getItem('themeState');
+  if(!firstLoad) {
+    themeState = (themeState === "on") ? "off" : "on";
+    localStorage.setItem('themeState', themeState);
+  }
+  themeState === "on" ? themeOn() : themeOff();
+}
+
+/**
+ * disable custom darker page theme
+ */
+function themeOn() {
+  $('body').addClass('color-body');
+  var nav = $('.navbar-mine, .navbar-default');
+  nav.addClass('navbar-mine').removeClass('navbar-default');
+}
+
+/**
+ * disable custom darker page theme
+ */
+function themeOff() {
+  $('body').removeClass('color-body');
+  var nav = $('.navbar-mine, .navbar-default');
+  nav.removeClass('navbar-mine').addClass('navbar-default');
 }
 
 /**
@@ -816,6 +846,8 @@ $('#lastToken').click(function(){
  * click handler for the earliest date in navbar
  */
 $('.statStart').click(function() {
+  this.blur();
+  pulse($('.fromDate'));
   $('.fromDate').datepicker('setDate', myGlobal.staticStats.startDate);
 });
 
@@ -823,6 +855,8 @@ $('.statStart').click(function() {
  * click handler for the recent date in navbar
  */
 $('.statRecent').click(function() {
+  this.blur();
+  pulse($('.toDate'));
   $('.toDate').datepicker('setDate', myGlobal.staticStats.recentDate);
 });
 
@@ -855,7 +889,14 @@ $('.exportJSON').click(function() {
  */
 $('.exportCSV').click(function() {
   pulse($(this).find('.fa'));
-  exportCSV(); 
+  exportCSV();
+});
+
+/**
+ * click handler for theme toggle in navbar
+ */
+$('.toggleTheme').click(function() {
+  toggleTheme();
 });
 
 /**
@@ -965,7 +1006,7 @@ window.onresize = function(){
  * userList events that fire on list changes
  * Uses a shared throttle to avoid rapid duplicate events
  */
-userList.on('searchComplete', function() { 
+userList.on('searchComplete', function() {
   if (!myGlobal.listUpdateActive && !myGlobal.loadingNow) {
     myGlobal.listUpdateActive = true;
     listUpdate('search');
@@ -976,7 +1017,7 @@ userList.on('filterComplete', function() {
   if (!myGlobal.listUpdateActive && !myGlobal.loadingNow) {
     myGlobal.listUpdateActive = true;
     listUpdate('filter');
-    myGlobal.listUpdateActive = false;    
+    myGlobal.listUpdateActive = false;
   }
 });
 //below events are not throttled
@@ -986,12 +1027,12 @@ userList.on('pageChangeComplete', handleHover);
 
 /******** end click and event handlers ********/
 
-
 /**
  * runs when the page loads and checks if there is user data
  * in localStorage.  If so, unhide a button element
  */
 $(function() {
+  toggleTheme(true); //set theme off if it was off on last load
   var oldData = curDataStr();
   if (oldData !== '') {
     $('#lastData').removeClass('hide');
@@ -1001,4 +1042,7 @@ $(function() {
     $('#lastToken').removeClass('hide');
   }
   initDatePicker();
+  //remove the big white div covering everything now that we
+  //are done doing things that will be flashy and ugly on load
+  $('#cover').hide();
 });
