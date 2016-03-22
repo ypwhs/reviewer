@@ -991,9 +991,12 @@ window.onresize = function(){
   //use timer to check when active resizing has ended
   myGlobal.resizeTimeout = setTimeout(function(){
     $('html, body').css('overflow-y', 'visible');
-    userList.page = getPageSize();
+    var oldPageSize = userList.page;
+    var newPageSize = getPageSize();
+    userList.page = newPageSize;
     userList.update();
     userList.show(1, userList.page);
+    if (newPageSize > oldPageSize) handleHover();
   }, myGlobal.sizeThrottle);
 };
 
