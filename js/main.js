@@ -320,17 +320,17 @@ function handleToken(token, isRefresh) {
       }
     }
 
-    stopSpin();
     var resJSON = JSON.stringify(data1[0]);
     if(isJson(resJSON)) {
       saveData(resJSON);
       if(userList.size()) {
-        $('.search').val('');
         userList.clear();
         resetStats();
-        userList.search();
       }
       handleData(resJSON);
+      debug('filters cleared');
+      userList.filter();
+      stopSpin();
     }
     else {
       $('#alert1').removeClass('hide');
@@ -504,17 +504,6 @@ function updateDatePicker() {
     $('.toDate').datepicker('setDate', myGlobal.staticStats.recentDate);
     updated = true;
   }
-  if(updated) {
-    //userList.filter() doesn't impact search but is useful if there are
-    //invalid dates a user may want to see still.  It should not be run if no
-    //dates above were changed since it mucks with pagination.  In the spirit
-    //of this being an ugly workaround for invalid dates in the data, also
-    //turn off filter events if they are on temporarily
-    var oldState = myGlobal.listUpdateActive;
-    myGlobal.listUpdateActive = true;
-    userList.filter();
-    myGlobal.listUpdateActive = oldState;
-  }
   //Now that things are set up, allow date picker events again
   myGlobal.datePickerEnabled = true;
   debug("update date picker ended");
@@ -574,6 +563,7 @@ function refreshData() {
       handleToken(oldToken, true);
     }
     else{
+      debug('Handling Data as no token found on refresh');
       var oldData = curDataStr();
       if (oldData !== '') {
         userList.clear();
@@ -660,7 +650,7 @@ function getPageSize() {
   var navSize = $('.navbar-header').outerHeight(true) || $('#navbar').outerHeight(true);
   var listMargins = 22;
   var wiggleRoom = 25;
-  debug(''+filterSize + ' ' + buttonSize + ' ' +pageSize + ' ' + navSize + ' ' + listMargins + ' ' + wiggleRoom);
+
   var baseSize = filterSize + buttonSize + pageSize +
                  navSize + listMargins + wiggleRoom;
 
@@ -913,13 +903,15 @@ $('#main-list').on('click', '.id', function() {
  * to specific fields only and throttle input
  */
 $('.my-search').on('propertychange input', function() {
-  $('.my-fuzzy-search').val('');
-  clearTimeout(myGlobal.searchTimeout);
-  //use 200ms timer to check when active typing has ended
-  myGlobal.searchTimeout = setTimeout(function(){
-    var filterArr = ['id', 'completedDate', 'earned', 'result', 'name'];
-    userList.search($('.my-search').val(), filterArr);
-  }, myGlobal.searchThrottle);
+  if(!myGlobal.loadingNow) {
+    $('.my-fuzzy-search').val('');
+    clearTimeout(myGlobal.searchTimeout);
+    //use 200ms timer to check when active typing has ended
+    myGlobal.searchTimeout = setTimeout(function(){
+      var filterArr = ['id', 'completedDate', 'earned', 'result', 'name'];
+      userList.search($('.my-search').val(), filterArr);
+    }, myGlobal.searchThrottle);
+  }
 });
 
 /**
@@ -927,13 +919,16 @@ $('.my-search').on('propertychange input', function() {
  * to specific fields only and throttle input
  */
 $('.my-fuzzy-search').on('propertychange input', function() {
-  $('.my-search').val('');
-  clearTimeout(myGlobal.searchTimeout);
-  //use 200ms timer to check when active typing has ended
-  myGlobal.searchTimeout = setTimeout(function(){
-    var filterArr = ['id', 'completedDate', 'earned', 'result', 'name'];
-    userList.fuzzySearch.search($('.my-fuzzy-search').val(), filterArr);
-  }, myGlobal.searchThrottle);
+
+  if(!myGlobal.loadingNow) {
+    $('.my-search').val('');
+    clearTimeout(myGlobal.searchTimeout);
+    //use 200ms timer to check when active typing has ended
+    myGlobal.searchTimeout = setTimeout(function(){
+      var filterArr = ['id', 'completedDate', 'earned', 'result', 'name'];
+      userList.fuzzySearch.search($('.my-fuzzy-search').val(), filterArr);
+    }, myGlobal.searchThrottle);
+  }
 });
 
 /**
