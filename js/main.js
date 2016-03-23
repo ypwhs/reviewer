@@ -854,6 +854,7 @@ $('.statRecent').click(function() {
  * click handler for the helper code button in navbar
  */
 $('.copyCode').click(function() {
+  this.blur();  
   pulse($(this).find('.fa'));
   copyCodeToClipboard();
 });
@@ -862,6 +863,7 @@ $('.copyCode').click(function() {
  * click handler for the data refresh in navbar
  */
 $('.refreshData').click(function() {
+  this.blur();  
   pulse($(this).find('.fa'));
   refreshData();
 });
@@ -870,6 +872,7 @@ $('.refreshData').click(function() {
  * click handler for .json export in navbar
  */
 $('.exportJSON').click(function() {
+  this.blur();  
   pulse($(this).find('.fa'));
   exportJSON();
 });
@@ -878,6 +881,7 @@ $('.exportJSON').click(function() {
  * click handler for CSV export in navbar
  */
 $('.exportCSV').click(function() {
+  this.blur();  
   pulse($(this).find('.fa'));
   exportCSV();
 });
@@ -886,6 +890,7 @@ $('.exportCSV').click(function() {
  * click handler for theme toggle in navbar
  */
 $('.toggleTheme').click(function() {
+  this.blur();  
   toggleTheme();
 });
 
