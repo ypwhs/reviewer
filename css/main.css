@@ -5,7 +5,7 @@
    ========================================================================== */
 
 * {
-  font-family: 'Roboto', sans-serif; 
+  font-family: 'Roboto', sans-serif;
 }
 
 html {
@@ -74,7 +74,7 @@ body {
 .cell {
   padding: 0 5px;
   white-space: nowrap;
-  overflow: hidden;    
+  overflow: hidden;
 }
 
 .text-success {
@@ -106,17 +106,17 @@ body {
 
   .fuzzy-wrapper {
     padding: 0 5px;
-  }    
+  }
 
   .date-wrapper {
     padding-left: 5px;
-  } 
+  }
 }
 @media (max-width: 1100px) {
   .navbar .navbar-nav li p,
   .navbar .navbar-nav li a {
     padding-left: 0;
-    padding-right: 0;        
+    padding-right: 0;
     margin-left: 5px;
     margin-right: 5px;
   }
@@ -161,7 +161,7 @@ body {
 .navbar-mine .navbar-nav > li > a:hover,
 .navbar-mine .navbar-nav > li > a:focus {
   color: #ffffff;
-  background-color: #606060;  
+  background-color: #606060;
 }
 .navbar-mine .navbar-nav > .active > a,
 .navbar-mine .navbar-nav > .active > a:hover,
@@ -216,7 +216,7 @@ body {
   }
 }
 
-.form-control:focus {   
+.form-control:focus {
     border-color: rgba(31, 144, 200, 0.9);
     box-shadow: 0 1px 1px rgba(31, 144, 200, 0.8) inset, 0 0 8px rgba(31, 144, 200, 0.6);
     outline: 0 none !important;

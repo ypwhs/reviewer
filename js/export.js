@@ -20,7 +20,7 @@ function curDataFlat() {
         if(review[i].length) {
           for (var x = 0, len = review[i].length; x < len; x++) {
             headers[i + "_" + (x + 1)] = "";
-            newObj[i + "_" + (x + 1)] = review[i][x];
+            newObj[i + "_" + (x + 1)] = catchDates(review[i][x]);
           }
         }
       }
@@ -28,13 +28,13 @@ function curDataFlat() {
         for (var y in review[i]) {
           if(review[i][y] !== null && review[i][y] !== undefined) {
             headers[i + "_" + y] = "";
-            newObj[i + "_" + y] = review[i][y];
+            newObj[i + "_" + y] = catchDates(review[i][y]);
           }
         }
       }
       else if (review[i] !== null && review[i] !== undefined){
         headers[i] = "";
-        newObj[i] = review[i];
+        newObj[i] = catchDates(review[i]);
       }
     }
     data[r] = newObj;
@@ -43,6 +43,18 @@ function curDataFlat() {
   data.unshift(headers);
 
   return data;
+}
+
+/**
+ * Reformat dates in iso 8601 format but pass everything else unchanged
+ * @param  {various} data unknown data format, usually a string
+ * @return {various} either the original data or a date/time string
+ */
+function catchDates(data) {
+  if (moment(data,moment.ISO_8601,true).isValid()) {
+    return moment(data).format("L hh:mm:ss")
+  }
+  return data
 }
 
 /**

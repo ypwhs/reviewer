@@ -28,6 +28,8 @@ var myGlobal = {
   listUpdateActive: false,
   //how many days back should a refresh (not initial load) try to grab
   refreshDays: 30,
+  //should a cors proxy be used?
+  useProxy: false,
   //prevent filter events while search is already running
   debug: false
 };
@@ -262,17 +264,12 @@ function handleToken(token, isRefresh) {
   saveToken(token);
 
   $.ajaxPrefilter(function(options) {
-      if (options.crossDomain && jQuery.support.cors) {
+      if (myGlobal.useProxy && options.crossDomain && jQuery.support.cors) {
           options.url = 'https://corsproxy-simplydallas.rhcloud.com/' + options.url;
       }
   });
-  var ajaxOptions = {};
-  //if this is a refresh, we want to grab a smaller slice of info
-  //as old history is very unlikely to have changed
-  if (isRefresh) {
-    var startDate = moment().subtract(myGlobal.refreshDays,'days').format();
-    ajaxOptions.start_date = startDate;
-  }
+
+  var ajaxOptions = {start_date: getPullDate().format()};
 
   $.when($.ajax({method: 'GET',
       url: 'https://review-api.udacity.com/api/v1/me/submissions/completed.json',
@@ -290,23 +287,30 @@ function handleToken(token, isRefresh) {
     if(data1[1] === "success" && data2[1] === "success") {
       //shared key lookup object to help merging data
       var lookup = {};
-      for (var i = 0, len = data1[0].length; i < len; i++) {
-          lookup[data1[0][i].id] = data1[0][i];
+      //make sure we use all reviews when merging in feedback
+      if(isJson(JSON.stringify(data1[0]))) {
+        data1 = mergeData(curData(), data1[0])
+      }
+
+      for (var i = 0, len = data1.length; i < len; i++) {
+        lookup[data1[i].id] = data1[i];
       }
       for (var i = 0, len = data2[0].length; i < len; i++) {
-           var feedback = data2[0][i];
-           var review = lookup[feedback.submission_id];
-           review.rating = feedback.rating;
-           review.feedback = feedback.body;
-           var full_feedback = 'Rating: ' + review.rating + '/5';
-           if (review.feedback !== null) {
-            full_feedback += '.  Feedback: ' + review.feedback;
-           }
-           review.full_feedback = full_feedback;
+        var feedback = data2[0][i];
+        var review = lookup[feedback.submission_id];
+        review.rating = feedback.rating;
+        review.feedback = feedback.body;
+        var full_feedback = 'Rating: ' + review.rating + '/5';
+        if (review.feedback !== null) {
+          full_feedback += '.  Feedback: ' + review.feedback;
+        }
+        review.full_feedback = full_feedback;
       }
     }
+
     debug(data1);
     debug(data2);
+
 
     //clear out any existing searches for the new data
     $('.my-fuzzy-search').val('');
@@ -316,13 +320,16 @@ function handleToken(token, isRefresh) {
     if (isRefresh) {
       var oldData = curDataStr();
       if (oldData != null) {
-        data1[0] = mergeData(JSON.parse(oldData), data1[0])
+        data1 = mergeData(JSON.parse(oldData), data1[0])
       }
     }
 
-    var resJSON = JSON.stringify(data1[0]);
+    var resJSON = JSON.stringify(data1);
     if(isJson(resJSON)) {
       saveData(resJSON);
+      //time stamp this date so we know the last data pull date
+      saveRefreshDate(moment().format())
+
       if(userList.size()) {
         userList.clear();
         resetStats();
@@ -334,8 +341,9 @@ function handleToken(token, isRefresh) {
     }
     else {
       $('#alert1').removeClass('hide');
-      deleteToken();
-      $('#lastToken').addClass('hide');
+      //TODO, decide if this should be permanently removed or not
+      // deleteToken();
+      // $('#lastToken').addClass('hide');
     }
   })
   .fail(function(error){
@@ -343,7 +351,7 @@ function handleToken(token, isRefresh) {
     $('#alert3').removeClass('hide');
     //TODO, decide if this should be permanently removed or not
     //deleteToken();
-    $('#lastToken').addClass('hide');
+    // $('#lastToken').addClass('hide');
   });
   debug("Handle Token ended");
 }
@@ -361,7 +369,7 @@ function handleData(dataStr) {
   $('.reviewsRow, .dropdown, .exportJSON, .exportCSV').removeClass('hide');
   $('.navbar-brand').addClass('visible-xs');
   $('.search').focus();
-  if (curToken() !== '') $('.refreshData').removeClass('hide');
+  if (curToken() !== '{}') $('.refreshData').removeClass('hide');
   myGlobal.staticStats = JSON.parse(JSON.stringify(myGlobal.stats));
   //fit the list to our current page state
   userList.page = getPageSize();
@@ -559,13 +567,13 @@ function copyCodeToClipboard() {
 function refreshData() {
   if (!myGlobal.loadingNow) {
     var oldToken = curToken();
-    if (oldToken !== '') {
+    if (oldToken !== '{}') {
       handleToken(oldToken, true);
     }
     else{
       debug('Handling Data as no token found on refresh');
       var oldData = curDataStr();
-      if (oldData !== '') {
+      if (oldData !== '{}') {
         userList.clear();
         resetStats();
         handleData(oldData);
@@ -712,6 +720,7 @@ function findNameInArr(name, arr) {
  */
 function mergeData(oldData, newData) {
   var oData = JSON.parse(JSON.stringify(oldData));
+  if ($.type(oData) !== 'array') oData = [];
   var nData = JSON.parse(JSON.stringify(newData));
 
   //make a lookup helper to facilitate the merge
@@ -762,12 +771,27 @@ function saveToken(token) {
   localStorage.setItem('lastToken', token);
 }
 
+function saveRefreshDate(date) {
+  localStorage.setItem('lastRefreshDate', date);
+}
+
+function curRefreshDateStr() {
+  return localStorage.getItem('lastRefreshDate')  || '{}';
+}
+
+function curRefreshDate() {
+  if (curRefreshDateStr() !== '{}') {
+    return moment(curRefreshDateStr());
+  }
+  return 0;
+}
+
 function deleteToken() {
   localStorage.removeItem('lastToken');
 }
 
 function curToken() {
-  return localStorage.getItem('lastToken') || '';
+  return localStorage.getItem('lastToken') || '{}';
 }
 
 function saveData(data) {
@@ -775,11 +799,26 @@ function saveData(data) {
 }
 
 function curDataStr() {
-  return localStorage.getItem('lastJSON') || '';
+  return localStorage.getItem('lastJSON') || '{}';
 }
 
 function curData() {
   return JSON.parse(curDataStr());
+}
+
+/**
+ * decides how many days to pull based on saved timestamp and settings
+ * @return {date or number} the date to pull from, or 0 for epoch
+ */
+function getPullDate() {
+  if ($.type(curData()) !== 'array') {
+    return 0;
+  }
+  var oldDate = curRefreshDate();
+  if (oldDate === 0) return 0
+  var dateAge = moment().diff(moment(curRefreshDate()),'d');
+  var daysNeeded = Math.max(myGlobal.refreshDays, dateAge);
+  return moment().subtract(daysNeeded, 'd').startOf('d');
 }
 
 /**
@@ -854,7 +893,7 @@ $('.statRecent').click(function() {
  * click handler for the helper code button in navbar
  */
 $('.copyCode').click(function() {
-  this.blur();  
+  this.blur();
   pulse($(this).find('.fa'));
   copyCodeToClipboard();
 });
@@ -863,7 +902,7 @@ $('.copyCode').click(function() {
  * click handler for the data refresh in navbar
  */
 $('.refreshData').click(function() {
-  this.blur();  
+  this.blur();
   pulse($(this).find('.fa'));
   refreshData();
 });
@@ -872,7 +911,7 @@ $('.refreshData').click(function() {
  * click handler for .json export in navbar
  */
 $('.exportJSON').click(function() {
-  this.blur();  
+  this.blur();
   pulse($(this).find('.fa'));
   exportJSON();
 });
@@ -881,7 +920,7 @@ $('.exportJSON').click(function() {
  * click handler for CSV export in navbar
  */
 $('.exportCSV').click(function() {
-  this.blur();  
+  this.blur();
   pulse($(this).find('.fa'));
   exportCSV();
 });
@@ -890,7 +929,7 @@ $('.exportCSV').click(function() {
  * click handler for theme toggle in navbar
  */
 $('.toggleTheme').click(function() {
-  this.blur();  
+  this.blur();
   toggleTheme();
 });
 
@@ -1037,11 +1076,11 @@ userList.on('pageChangeComplete', handleHover);
 $(function() {
   toggleTheme(true); //set theme off if it was off on last load
   var oldData = curDataStr();
-  if (oldData !== '') {
+  if (oldData !== '{}') {
     $('#lastData').removeClass('hide');
   }
   var oldToken = curToken();
-  if (oldToken !== '') {
+  if (oldToken !== '{}') {
     $('#lastToken').removeClass('hide');
   }
   initDatePicker();
