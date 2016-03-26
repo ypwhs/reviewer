@@ -107,7 +107,15 @@ var parseVals = function(vals) {
     //pull the project name to the top level
     review.name = review.project.name;
     review.earned = numToMoney(+review.price);
+
+    //if completed_at is missing, use created_at instead
+    //TODO: consider a gener date helper function with multiple fallbacks
+    if (!moment(review.completed_at,moment.ISO_8601,true).isValid()) {
+      review.completed_at = review.created_at;
+    }
     review.completedDate = moment(review.completed_at).format("L");
+
+
     //date stuff
     var dateAssn = moment(review.assigned_at);
     var dateComp = moment(review.completed_at);
@@ -269,22 +277,24 @@ function handleToken(token, isRefresh) {
       }
   });
 
-  var ajaxOptions = {start_date: getPullDate()};
+  var ajaxOptions1 = getPullDate(true);
+  var ajaxOptions2 = getPullDate();
 
   $.when($.ajax({method: 'GET',
       url: 'https://review-api.udacity.com/api/v1/me/submissions/completed.json',
-      data: ajaxOptions,
+      data: ajaxOptions1,
       headers: { Authorization: token }
     }),
     $.ajax({method: 'GET',
       url: 'https://review-api.udacity.com/api/v1/me/student_feedbacks.json',
-      data: ajaxOptions,
+      data: ajaxOptions2,
       headers: { Authorization: token }
     }))
   .done(function(data1, data2){
     //assuming both data pulls worked, merge feedback into
     //the review data so we can work with a single object / JSON
     if(data1[1] === "success" && data2[1] === "success") {
+      debug(data1[0]);
       //shared key lookup object to help merging data
       var lookup = {};
       //make sure we use all reviews when merging in feedback
@@ -315,14 +325,6 @@ function handleToken(token, isRefresh) {
     //clear out any existing searches for the new data
     $('.my-fuzzy-search').val('');
     $('.my-search').val('');
-
-    //if this is a refresh, merge the refresh data with any existing data
-    if (isRefresh) {
-      var oldData = curDataStr();
-      if (oldData != null) {
-        data1 = mergeData(JSON.parse(oldData), data1[0])
-      }
-    }
 
     var resJSON = JSON.stringify(data1);
     if(isJson(resJSON)) {
@@ -758,10 +760,13 @@ function isJson(item) {
         return false;
     }
 
-    if (typeof item === "object" && item !== null) {
-      if (item[0].completed_at !== undefined) {
+    if ($.type(item) === "array" && item != null) {
+      if (item[0].udacity_key !== undefined) {
         return true;
       }
+    }
+    else {
+      debug("invalid JSON tested (probably empty)");
     }
 
     return false;
@@ -773,6 +778,10 @@ function saveToken(token) {
 
 function saveRefreshDate(date) {
   localStorage.setItem('lastRefreshDate', date);
+}
+
+function deleteRefreshDate() {
+  localStorage.removeItem('lastRefreshDate')
 }
 
 function curRefreshDateStr() {
@@ -794,6 +803,11 @@ function curToken() {
   return localStorage.getItem('lastToken') || '{}';
 }
 
+function deleteData() {
+  localStorage.removeItem('lastJSON');
+  localStorage.removeItem('lastRefreshDate')
+}
+
 function saveData(data) {
   localStorage.setItem('lastJSON', data);
 }
@@ -810,15 +824,20 @@ function curData() {
  * decides how many days to pull based on saved timestamp and settings
  * @return {date or number} the date to pull from, or 0 for epoch
  */
-function getPullDate() {
+function getPullDate(nullFullRange) {
+  var retObj = {start_date: 0};
+  if (nullFullRange) retObj = {};
   if ($.type(curData()) !== 'array') {
-    return 0;
+    return retObj;
   }
   var oldDate = curRefreshDate();
-  if (oldDate === 0) return 0
+  if (oldDate === 0) return retObj
+
   var dateAge = moment().diff(moment(curRefreshDate()),'d');
   var daysNeeded = Math.max(myGlobal.refreshDays, dateAge);
-  return moment().subtract(daysNeeded, 'd').startOf('d').format();
+  retObj.start_date = moment().subtract(daysNeeded, 'd').startOf('d').format();
+  return retObj;
+
 }
 
 /**
@@ -1082,7 +1101,7 @@ $(function() {
   var oldToken = curToken();
   if (oldToken !== '{}') {
     $('#lastToken').removeClass('hide');
-    handleToken(oldToken);
+    // handleToken(oldToken);
   }
   initDatePicker();
 
