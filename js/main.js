@@ -269,7 +269,7 @@ function handleToken(token, isRefresh) {
       }
   });
 
-  var ajaxOptions = {start_date: getPullDate().format()};
+  var ajaxOptions = {start_date: getPullDate()};
 
   $.when($.ajax({method: 'GET',
       url: 'https://review-api.udacity.com/api/v1/me/submissions/completed.json',
@@ -818,7 +818,7 @@ function getPullDate() {
   if (oldDate === 0) return 0
   var dateAge = moment().diff(moment(curRefreshDate()),'d');
   var daysNeeded = Math.max(myGlobal.refreshDays, dateAge);
-  return moment().subtract(daysNeeded, 'd').startOf('d');
+  return moment().subtract(daysNeeded, 'd').startOf('d').format();
 }
 
 /**
@@ -1082,8 +1082,10 @@ $(function() {
   var oldToken = curToken();
   if (oldToken !== '{}') {
     $('#lastToken').removeClass('hide');
+    handleToken(oldToken);
   }
   initDatePicker();
+
   //remove the big white div covering everything now that we
   //are done doing things that will be flashy and ugly on load
   //$('#cover').hide(400, 'opacity');

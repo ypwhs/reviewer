@@ -32,11 +32,11 @@ copy($.ajax({
 5. In the webpage/tool paste the JSON into the text box
 6. If you want to start over, just refresh the page by hitting F5.
   * If you used a token instead of JSON, there will be a small refresh icon in the top right that you can use to update data without reloading the page.
-  * A refresh from a load page should load faster than the initial token page load as it only grabs recent data (currently 30 days) and updates what you already have.  The initial page load grabs your full history instead.
+  * A refresh from a load page should load faster than the initial token page load as it only grabs data older than 30 days if you have not refreshed in the last 30 days.  The initial page load grabs your full history and after that it will only refresh new data.
 7. Your data is stored locally on your pc.
   * If you refresh after the first use you should see a button that says `Load locally stored data you last used`.
   * This will not pull fresh data from Udacity but it will let you see your last loaded data without getting it and pasting it again.
-  * If you are using the token method, you will see a button that says: `Get data from token you last used`.  This will fetch new data from Udacity without you having to go back to the site.  However, it uses a third proxy to get around CORS headers so don't use this if you feel uncomfortable with your data going through a middleman.
+  * If you are using the token method, you will see a button that says: `Get data from token you last used`.  This will fetch new data from Udacity without you having to go back to the site or reload.
 
 ### Theme
 
@@ -86,11 +86,9 @@ note: stats are based off current search and date filter.  This is throttled a l
 
 * Possibly change result column to feedback with result hover instead of the other way around once more than 30 days of history is enabled for feedback (supposed to be next week).
 * Parse results to more reviewer familiar terms.  Meets instead of passes, etc.
-* Switch data refresh to direct link once Udacity adds CORs headers to avoid the middleman.
-  *This is now automatic and will happen naturally if the headers are added.
 * Use of D3 for graph of earnings or other interesting data.
 * Possibly deprecate the manual JSON based load in favor of autoloading when there is a known token now that feedback will be included when pulled by token.
   * Would fall back to stored JSON when no connection is available.
-  * Would use stored data and then refresh from 30 days back or your last existing review date, whichever is greater.
+  * note: currently set to autoload if token is available as a rouch temp approach to this now that the API has cors headers.
 
 -Dallas Frank
