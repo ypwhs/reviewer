@@ -338,9 +338,9 @@ function handleToken(token, isRefresh) {
         userList.clear();
         resetStats();
       }
+      userList.filter();
       handleData(resJSON);
       debug('filters cleared');
-      userList.filter();
       stopSpin();
     }
     else {
