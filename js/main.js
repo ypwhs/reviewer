@@ -193,15 +193,15 @@ function cleanStats() {
     project.count = numWithComs(project.count);
   });
   //other
-  debugger;
+
   //order here is important as numbers are overwritten with text after being used
   myGlobal.stats.avgEarned = numToMoney(myGlobal.stats.earned / myGlobal.stats.reviewCount);
-  myGlobal.stats.reviewCount = numWithComs(myGlobal.stats.reviewCount);
   myGlobal.stats.earned = numToMoney(myGlobal.stats.earned);
   myGlobal.stats.startDate = myGlobal.stats.startDate.format("l");
   myGlobal.stats.recentDate = myGlobal.stats.recentDate.format("l");
   var dur = moment.duration((myGlobal.stats.duration/myGlobal.stats.reviewCount));
   myGlobal.stats.avgDuration = pad(dur.hours()) + ":" + pad(dur.minutes()) + ":" + pad(dur.seconds());
+  myGlobal.stats.reviewCount = numWithComs(myGlobal.stats.reviewCount);
   debug("Clean stats ended");
 }
 
