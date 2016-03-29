@@ -48,7 +48,7 @@ var options = {
              ListFuzzySearch() ],
   item: '<li class="list-group-item"><div class="row">' +
         '<div class="cell col-sm-2 col-xs-2">' +
-        '<a href="javascript:;" class="link"><span class="id"></span></a>' +
+        '<a href="javascript:;" class="link pulsed"><span class="id"></span></a>' +
         '</div><div class="cell col-sm-2 col-xs-2">' +
         '<span class="completedDate duration" data-placement="auto top" ' +
         'data-toggle="popover"' +
@@ -620,7 +620,7 @@ function stopSpin() {
  * Enables and disables custom darker page theme
  */
 function toggleTheme(firstLoad) {
-  var themeState = localStorage.getItem('themeState');
+  var themeState = localStorage.getItem('themeState') || "on";
   if(!firstLoad) {
     themeState = (themeState === "on") ? "off" : "on";
     localStorage.setItem('themeState', themeState);
@@ -845,13 +845,15 @@ function getPullDate(nullFullRange) {
 /**
  * Visually flashes icons.  Used for click feedback
  * @param  {object} el jQuery or DOM element object to pulse
+ * @param  {number} delay time to keep effect in place (defaults to 200)
  */
-function pulse(el) {
+function pulse(el, delay) {
+  delay = delay || 200;
   if (!el.jquery) el = $(el);
   el.addClass('pulse');
   setTimeout(function(){
     el.removeClass('pulse');
-    }, 200)
+    }, delay)
 }
 
 /**
@@ -914,8 +916,6 @@ $('.statRecent').click(function() {
  * click handler for the helper code button in navbar
  */
 $('.copyCode').click(function() {
-  this.blur();
-  pulse($(this).find('.fa'));
   copyCodeToClipboard();
 });
 
@@ -923,8 +923,6 @@ $('.copyCode').click(function() {
  * click handler for the data refresh in navbar
  */
 $('.refreshData').click(function() {
-  this.blur();
-  pulse($(this).find('.fa'));
   refreshData();
 });
 
@@ -932,8 +930,6 @@ $('.refreshData').click(function() {
  * click handler for .json export in navbar
  */
 $('.exportJSON').click(function() {
-  this.blur();
-  pulse($(this).find('.fa'));
   exportJSON();
 });
 
@@ -941,8 +937,6 @@ $('.exportJSON').click(function() {
  * click handler for CSV export in navbar
  */
 $('.exportCSV').click(function() {
-  this.blur();
-  pulse($(this).find('.fa'));
   exportCSV();
 });
 
@@ -950,7 +944,6 @@ $('.exportCSV').click(function() {
  * click handler for theme toggle in navbar
  */
 $('.toggleTheme').click(function() {
-  this.blur();
   toggleTheme();
 });
 
@@ -961,6 +954,16 @@ $('.toggleTheme').click(function() {
  */
 $('#main-list').on('click', '.id', function() {
   handleModal(this.innerHTML);
+});
+
+
+/**
+ * click handler for objects that get a pulse visual effect
+ */
+$('body').on('click', '.pulsed', function() {
+  this.blur();
+  pulse(this);
+  pulse($(this).find('.fa'));
 });
 
 /**
