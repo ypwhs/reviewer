@@ -24,6 +24,10 @@ body {
   cursor: help;
 }
 
+.help-cursor {
+  cursor: help;
+}
+
 .popover {
   min-width: 320px; !important;
   max-width: 600px; !important;
@@ -111,6 +115,12 @@ body {
   .date-wrapper {
     padding-left: 5px;
   }
+
+  .fa-lgonlg {
+      font-size: 1.33333333em;
+      line-height: .75em;
+      vertical-align: -15%;
+  }  
 }
 @media (max-width: 1100px) {
   .navbar .navbar-nav li p,
@@ -214,6 +224,7 @@ body {
     color: #ffffff;
     background-color: #606060;
   }
+
 }
 
 .form-control:focus {

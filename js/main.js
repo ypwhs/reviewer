@@ -42,7 +42,7 @@ var options = {
   valueNames: [ 'id',
                 { name: 'full_feedback', attr: 'data-content'},
                 { name: 'duration', attr: 'data-content'},
-                'completedDate', 'earned', 'result', 'name', ],
+                'completedDate', 'earned', 'stars', 'name', ],
   page: 5,
   plugins: [ ListPagination({outerWindow: 1}),
              ListFuzzySearch() ],
@@ -56,7 +56,7 @@ var options = {
         '</div><div class="cell col-sm-2 col-xs-2">' +
         '<span class="earned"></span>' +
         '</div><div class="cell col-sm-2 col-xs-2">' +
-        '<span class="result full_feedback" data-placement="auto top" ' +
+        '<span class="stars full_feedback" data-placement="auto top" ' +
         'data-toggle="popover"' +
         'data-trigger="hover"></span>' +
         '</div><div class="cell col-sm-4 col-xs-4">' +
@@ -124,6 +124,31 @@ var parseVals = function(vals) {
     review.duration = "Time to finish: " + pad(tempDur.hours()) + ":" +
                       pad(tempDur.minutes()) + ":" + pad(tempDur.seconds());
     review.rawDur = tempDur;
+
+    var resultMap = {'passed': 'Meets Specifications',
+                     'exceeded': 'Exceeds Specifications',
+                     'failed': 'Requires Changes',
+                     'ungradeable': "Unable to Review"};
+
+    review.result = resultMap[review.result] || "Unknown";
+
+      var starResult = '<span class="star-result"> (' + review.result[0] + ')</span>';
+
+    if(review.rating) {
+      //convert rating to stars.  If no rating, use result
+      var stars = ['-o','-o','-o','-o','-o'];
+      for (i = 0; i < +review.rating; i++) {
+        stars[i] = '';
+      }
+      var starTemp = '<i class="fa fa-lgonlg fa-star{{type}}"></i>';
+      review.stars = stars.map(function(star) {
+        return starTemp.replace('{{type}}',star);
+      }).join('') + starResult;
+    }
+    else {
+      review.stars = starResult;
+    }
+    review.full_feedback = 'Result: ' + review.result + '. ' + (review.full_feedback || '');
 
     parseReviewStats(review);
 
@@ -264,7 +289,7 @@ function updateStats() {
 }
 
 /**
- * Get JSON from a token using a CORS proxy
+ * Get JSON from a token
  * @param  {string} token user auth token from Udacity
  */
 function handleToken(token, isRefresh) {
@@ -307,7 +332,7 @@ function handleToken(token, isRefresh) {
       for (var i = 0, len = data1.length; i < len; i++) {
         lookup[data1[i].id] = data1[i];
       }
-      for (var i = 0, len = data2[0].length; i < len; i++) {
+      for (i = 0, len = data2[0].length; i < len; i++) {
         var feedback = data2[0][i];
         var review = lookup[feedback.submission_id];
         review.rating = feedback.rating;
@@ -396,7 +421,7 @@ function handleHover() {
   debug("Handle Hover triggered");
   $('.popover').remove(); //be sure no popovers are stuck open
   $('.full_feedback:not([data-content="null"],[data-content=""])')
-  .popover({container: 'body'}).addClass('hoverable');
+  .popover({container: 'body'}).addClass('help-cursor');
   $('.duration').popover({container: 'body'}).addClass('hoverable');
   debug("Handle Hover ended");
 }
@@ -596,14 +621,15 @@ function refreshData() {
  * @param  {number} delay number of milliseconds to delay before spinning
  */
 function startSpin(delay) {
-    myGlobal.loadingNow = true;
+  myGlobal.loadingNow = true;
 
-    if (myGlobal.spinner == undefined ) {
-        myGlobal.spinner = new Spinner();
-    }
-    myGlobal.timerTimeout = setTimeout(function() {
-        myGlobal.spinner.spin(document.getElementById('spin-target'));
-    }, delay);
+  if (myGlobal.spinner === undefined) {
+    myGlobal.spinner = new Spinner();
+  }
+  myGlobal.timerTimeout = setTimeout(function() {
+    myGlobal.spinner.spin(document.getElementById('spin-target'));
+    $('.fa-refresh').addClass('fa-spin');
+  }, delay);
 }
 
 /**
@@ -611,9 +637,10 @@ function startSpin(delay) {
  * Also restores clicking actions on input boxes/buttons
  */
 function stopSpin() {
-    clearTimeout(myGlobal.timerTimeout);
-    myGlobal.spinner.stop();
-    myGlobal.loadingNow = false;
+  clearTimeout(myGlobal.timerTimeout);
+  myGlobal.spinner.stop();
+  myGlobal.loadingNow = false;
+  $('.fa-refresh').removeClass('fa-spin');
 }
 
 /**
