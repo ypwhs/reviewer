@@ -6,6 +6,8 @@ var myGlobal = {
   stats: {},
   //hold some unfiltered stats
   staticStats: {},
+  //saved dates for restoring
+  savedDates: {from:null, to:null},
   //timers
   timerTimeout: null,
   resizeTimeout: null,
@@ -404,6 +406,16 @@ function handleData(dataStr) {
   userList.page = getPageSize();
   userList.update();
 
+  //make sure we don't try to restore empty dates by setting
+  //our inital savedDates to the current max date range
+  if (myGlobal.savedDates.from === null) {
+    myGlobal.savedDates.from = myGlobal.staticStats.startDate;
+  }
+  if (myGlobal.savedDates.to === null) {
+    myGlobal.savedDates.to = myGlobal.staticStats.recentDate;
+  }
+
+
   updateStats();
   handleHover();
 
@@ -530,15 +542,28 @@ function updateDatePicker() {
   //prevent unwanted events while we set dates
   myGlobal.datePickerEnabled = false;
 
+  var fromDate = myGlobal.staticStats.startDate
+  var toDate =myGlobal.staticStats.recentDate
+
+  //restore saved dates if the user chooses that setting
+  var datesState = curDatesState();
+  if (datesState === "from" || datesState === "both") {
+    fromDate = myGlobal.savedDates.from;
+  }
+  if (datesState === "both") {
+    toDate = myGlobal.savedDates.to;
+  }
+
+
   var updated = false;
   var startNow = moment($('.fromDate').datepicker('getDate')).format("l");
   if (startNow !== myGlobal.stats.startDate) {
-    $('.fromDate').datepicker('setDate', myGlobal.staticStats.startDate);
+    $('.fromDate').datepicker('setDate', fromDate);
     updated = true;
   }
   var endNow = moment($('.toDate').datepicker('getDate')).format("l");
   if (endNow !== myGlobal.stats.recentDate) {
-    $('.toDate').datepicker('setDate', myGlobal.staticStats.recentDate);
+    $('.toDate').datepicker('setDate', toDate);
     updated = true;
   }
   //Now that things are set up, allow date picker events again
@@ -590,13 +615,15 @@ function copyCodeToClipboard() {
 }
 
 /**
- * Either pulls data from ewxisting token or if one is not found
+ * Either pulls data from existing token or if one is not found
  * resets data to the current stored data in localStorage
  */
 function refreshData() {
   if (!myGlobal.loadingNow) {
     var oldToken = curToken();
     if (oldToken !== '{}') {
+      myGlobal.savedDates.from = $('.fromDate').datepicker('getDate');
+      myGlobal.savedDates.to = $('.toDate').datepicker('getDate');
       handleToken(oldToken, true);
     }
     else{
@@ -647,12 +674,47 @@ function stopSpin() {
  * Enables and disables custom darker page theme
  */
 function toggleTheme(firstLoad) {
-  var themeState = localStorage.getItem('themeState') || "on";
+  var themeState = curThemeState();
   if(!firstLoad) {
     themeState = (themeState === "on") ? "off" : "on";
-    localStorage.setItem('themeState', themeState);
+    saveThemeState(themeState);
   }
   themeState === "on" ? themeOn() : themeOff();
+}
+
+/**
+ * Enables and disables custom darker page theme
+ */
+function toggleDates(firstLoad) {
+  var datesState = curDatesState();
+  var dateIcon = $('.toggleDates').find('.fa');
+
+  if(!firstLoad) {
+    if (datesState === "none") {
+      datesState = "both";
+    }
+    else if (datesState === "both") {
+      datesState = "from"
+    }
+    else {
+      datesState = "none"
+    }
+    saveDatesState(datesState);
+  }
+
+  //now set the actual icon
+  if (datesState === "none") {
+    dateIcon.removeClass('fa-calendar-minus-o fa-calendar-check-o')
+            .addClass('fa-calendar-times-o');
+  }
+  else if (datesState === "both") {
+    dateIcon.removeClass('fa-calendar-minus-o fa-calendar-times-o')
+            .addClass('fa-calendar-check-o');
+  }
+  else if (datesState === "from") {
+    dateIcon.removeClass('fa-calendar-times-o fa-calendar-check-o')
+            .addClass('fa-calendar-minus-o');
+  }
 }
 
 /**
@@ -849,6 +911,30 @@ function curData() {
   return JSON.parse(curDataStr());
 }
 
+function deleteDatesState() {
+  localStorage.removeItem('datesState');
+}
+
+function saveDatesState(data) {
+  localStorage.setItem('datesState', data);
+}
+
+function curDatesState() {
+  return localStorage.getItem('datesState') || 'from';
+}
+
+function deleteThemeState() {
+  localStorage.removeItem('themeState');
+}
+
+function saveThemeState(data) {
+  localStorage.setItem('themeState', data);
+}
+
+function curThemeState() {
+  return localStorage.getItem('themeState') || 'on';
+}
+
 /**
  * decides how many days to pull based on saved timestamp and settings
  * @return {date or number} the date to pull from, or 0 for epoch
@@ -972,6 +1058,13 @@ $('.exportCSV').click(function() {
  */
 $('.toggleTheme').click(function() {
   toggleTheme();
+});
+
+/**
+ * click handler for theme toggle in navbar
+ */
+$('.toggleDates').click(function() {
+  toggleDates();
 });
 
 /**
@@ -1126,6 +1219,7 @@ userList.on('pageChangeComplete', handleHover);
  */
 $(function() {
   toggleTheme(true); //set theme off if it was off on last load
+  toggleDates(true); //set theme off if it was off on last load  
   var oldData = curDataStr();
   if (oldData !== '{}') {
     $('#lastData').removeClass('hide');

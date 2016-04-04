@@ -42,6 +42,13 @@ copy($.ajax({
 
 * The default theme can be toggled off to show a mostly white layout similar to the default Udacity or Bootstrap theme.  Just click the little paintbrush in the top right.  It will remember your preference for next time.
 
+### Restoring Dates on Refresh
+
+* You can toggle between three options for keeping your current date filter after a refresh by clicking the calendar icon in the top right in the navbar.
+  * Calendar with &#10134; will save your from date but not your to date.  This is the default option and is good for if you want to see all of the newest data but you already selected a newer from date.  Example, if you want to see the current month but want all the newest reviews to show, this is the best option.
+  * Calendar with &#10003; will save your current dates and use those after refreshign data.  This is good if you are looking at a specific week or month and don't want to select it again
+  * Calendar with &#10006; will not save your dates and will reset to the max date range of the data on each refresh.  This ensures you see all of your reviews after every refresh.
+
 ### The following information is presented
 
 * review id
