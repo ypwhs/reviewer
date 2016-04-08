@@ -867,6 +867,24 @@ function isJson(item) {
     return false;
 }
 
+/* Start section for local storage helpers */
+
+function resetAll() {
+  var r = confirm("Are you sure you want to reset everything?");
+  if (r == true) {
+    resetStats();
+    deleteToken();
+    deleteData();
+    deleteDatesState();
+    deleteThemeState();
+    deleteRefreshDate();
+    debug("everything reset");
+    location.reload(true);
+  } else {
+    debug("full reset cancelled")
+  }  
+}
+
 function saveToken(token) {
   localStorage.setItem('lastToken', token);
 }
@@ -938,6 +956,9 @@ function saveThemeState(data) {
 function curThemeState() {
   return localStorage.getItem('themeState') || 'on';
 }
+
+/* End section for local storage helpers */
+
 
 /**
  * decides how many days to pull based on saved timestamp and settings
