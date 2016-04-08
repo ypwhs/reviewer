@@ -337,13 +337,17 @@ function handleToken(token, isRefresh) {
       for (i = 0, len = data2[0].length; i < len; i++) {
         var feedback = data2[0][i];
         var review = lookup[feedback.submission_id];
-        review.rating = feedback.rating;
-        review.feedback = feedback.body;
-        var full_feedback = 'Rating: ' + review.rating + '/5';
-        if (review.feedback !== null) {
-          full_feedback += '.  Feedback: ' + review.feedback;
+        //only try to edit this review if it was actually found
+        //(which it normally should be)
+        if(review !== undefined) {
+          review.rating = feedback.rating;
+          review.feedback = feedback.body;
+          var full_feedback = 'Rating: ' + review.rating + '/5';
+          if (review.feedback !== null) {
+            full_feedback += '.  Feedback: ' + review.feedback;
+          }
+          review.full_feedback = full_feedback;
         }
-        review.full_feedback = full_feedback;
       }
     }
 
