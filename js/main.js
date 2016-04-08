@@ -874,8 +874,10 @@ function isJson(item) {
 /* Start section for local storage helpers */
 
 function resetAll() {
-  var r = confirm("Are you sure you want to reset everything?");
+  var r = confirm("Are you sure you want to reset everything?  " +
+    "The only thing that will be kept is your last used token.");
   if (r == true) {
+    var tokenCache = curToken();
     resetStats();
     deleteToken();
     deleteData();
@@ -884,6 +886,9 @@ function resetAll() {
     deleteRefreshDate();
     debug("everything reset");
     location.reload(true);
+    if(tokenCache) {
+      saveToken(tokenCache);
+    }
   } else {
     debug("full reset cancelled")
   }  
