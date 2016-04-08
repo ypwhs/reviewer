@@ -348,6 +348,10 @@ function handleToken(token, isRefresh) {
           }
           review.full_feedback = full_feedback;
         }
+        else {
+          console.log("A review with id of " + feedback.submission_id +
+            " was not found even though you have feedback for it!");
+        }
       }
     }
 
