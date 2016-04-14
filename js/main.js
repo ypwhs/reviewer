@@ -30,6 +30,8 @@ var myGlobal = {
   listUpdateActive: false,
   //how many days back should a refresh (not initial load) try to grab
   refreshDays: 30,
+  //only load refresh amount even if data is empty
+  recentOnly: false,  
   //should a cors proxy be used?
   useProxy: false,
   //prevent filter events while search is already running
@@ -976,17 +978,19 @@ function curThemeState() {
 function getPullDate(nullFullRange) {
   var retObj = {start_date: 0};
   if (nullFullRange) retObj = {};
-  if ($.type(curData()) !== 'array') {
+  if ($.type(curData()) !== 'array' && !myGlobal.recentOnly) {
     return retObj;
   }
   var oldDate = curRefreshDate();
-  if (oldDate === 0) return retObj
+  if (oldDate === 0 && !myGlobal.recentOnly) return retObj
 
   var dateAge = moment().diff(moment(curRefreshDate()),'d');
   var daysNeeded = Math.max(myGlobal.refreshDays, dateAge);
+  if (myGlobal.recentOnly) {
+    daysNeeded = myGlobal.refreshDays;
+  }
   retObj.start_date = moment().subtract(daysNeeded, 'd').startOf('d').format();
   return retObj;
-
 }
 
 /**
