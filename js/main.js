@@ -38,6 +38,8 @@ var myGlobal = {
   debug: false
 };
 
+var curDataStr;
+
 /**
  * options for listjs including an ugly html template to use
  * for the list itself when parsing in items from Udacity data
@@ -638,7 +640,7 @@ function refreshData() {
     }
     else{
       debug('Handling Data as no token found on refresh');
-      var oldData = curDataStr();
+      var oldData = curDataStr;
       if (oldData !== '{}') {
         userList.clear();
         resetStats();
@@ -928,20 +930,21 @@ function curToken() {
 }
 
 function deleteData() {
-  localStorage.removeItem('lastJSON');
+  localforage.removeItem('lastJSON');
   localStorage.removeItem('lastRefreshDate')
 }
 
 function saveData(data) {
-  localStorage.setItem('lastJSON', data);
+  // localStorage.setItem('lastJSON', data);
+  localforage.setItem('lastJSON', data);
 }
 
-function curDataStr() {
-  return localStorage.getItem('lastJSON') || '{}';
-}
+// function curDataStr() {
+//   return localStorage.getItem('lastJSON') || '{}';
+// }
 
 function curData() {
-  return JSON.parse(curDataStr());
+  return JSON.parse(curDataStr);
 }
 
 function deleteDatesState() {
@@ -1024,7 +1027,7 @@ function debug(message) {
  */
 $('#lastData').click(function(){
   if (!myGlobal.loadingNow) {
-    var oldData = curDataStr();
+    var oldData = curDataStr;
     if (isJson(oldData)) {
       handleData(oldData);
     }
@@ -1258,19 +1261,31 @@ userList.on('pageChangeComplete', handleHover);
 $(function() {
   toggleTheme(true); //set theme off if it was off on last load
   toggleDates(true); //set theme off if it was off on last load  
-  var oldData = curDataStr();
-  if (oldData !== '{}') {
-    $('#lastData').removeClass('hide');
-  }
+  initDatePicker();
+
   var oldToken = curToken();
   if (oldToken !== '{}') {
     $('#lastToken').removeClass('hide');
     // handleToken(oldToken);
   }
-  initDatePicker();
+
+  //clean up the old data item for users now that we use indexDB via
+  //localforage
+  //TODO: delete this once it has been a reasonable amount of time
+  //since some people may actually need the localStorage fallback anyway
+  localStorage.removeItem('lastJSON');
 
   //remove the big white div covering everything now that we
   //are done doing things that will be flashy and ugly on load
   //$('#cover').hide(400, 'opacity');
-  $('#cover').fadeOut(500);
+  localforage.getItem('lastJSON', function(err, data) {
+    curDataStr = data || '{}';
+
+    if (curDataStr !== '{}') {
+      $('#lastData').removeClass('hide');
+    }
+
+    $('#cover').fadeOut(500);  
+  });
+  
 });
