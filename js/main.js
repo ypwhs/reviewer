@@ -408,7 +408,7 @@ function handleData(dataStr) {
   debug("Handle Data triggered");
   userList.add(parseVals(JSON.parse(dataStr)));
   userList.sort('id', { order: "desc" });
-  $('.jumbotron, .copyCode').addClass('hide');
+  $('.jumbotron').addClass('hide');
   $('.reviewsRow, .dropdown, .exportJSON, .exportCSV').removeClass('hide');
   $('.navbar-brand').addClass('visible-xs');
   $('.search').focus();
