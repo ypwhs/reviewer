@@ -555,12 +555,15 @@ function updateDatePicker() {
   myGlobal.datePickerEnabled = false;
 
   var fromDate = myGlobal.staticStats.startDate
-  var toDate =myGlobal.staticStats.recentDate
+  var toDate = myGlobal.staticStats.recentDate
 
   //restore saved dates if the user chooses that setting
   var datesState = curDatesState();
   if (datesState === "from" || datesState === "both") {
-    fromDate = myGlobal.savedDates.from;
+    // fromDate = myGlobal.savedDates.from;
+    fromDate = myGlobal.savedDates.to;
+    var parts = fromDate.split('/');
+    fromDate = parts[0]+'/1/'+parts[2];
   }
   if (datesState === "both") {
     toDate = myGlobal.savedDates.to;
