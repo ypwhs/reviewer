@@ -119,19 +119,27 @@
     <div class="row hide reviewsRow">
       <div id="reviews">
         <div class="row filter-row">
-          <div class="col-sm-4 search-wrapper">
+          <div class="col-sm-2 search-wrapper">
             <input class="my-search form-control" placeholder="Strict Search" />
           </div>
-          <div class="col-sm-4 fuzzy-wrapper">
+          <div class="col-sm-2 fuzzy-wrapper">
             <input class="my-fuzzy-search form-control" placeholder="Fuzzy Search" />
           </div>
-          <div class="col-sm-4 date-wrapper">
+          <div class="col-sm-3 date-wrapper">
             <div class="input-daterange input-group" id="datepicker">
               <input type="text" class="fromDate input-sm form-control" name="start" />
               <span class="input-group-addon">to</span>
               <input type="text" class="toDate input-sm form-control" name="end" />
             </div>
           </div>
+          <div class="col-sm-5"><div class="row">
+            <div class="col-sm-3">
+              <input id="rate" class="form-control" style="height: 30px;" placeholder="6.8" />
+            </div>
+            <div class="col-sm-9">
+              <button id="thismonth" class="btn btn-sm btn-primary btn-block">查看本月</button>
+            </div>
+          </div></div>
         </div>
         <div class="row button-row">
           <div class="col-sm-12 col-xs-12 button-wrapper">

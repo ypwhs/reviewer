@@ -35,7 +35,7 @@ var myGlobal = {
   //should a cors proxy be used?
   useProxy: false,
   //prevent filter events while search is already running
-  debug: false
+  debug: true
 };
 
 var curDataStr;
@@ -227,6 +227,7 @@ function cleanStats() {
 
   //order here is important as numbers are overwritten with text after being used
   myGlobal.stats.avgEarned = numToMoney(myGlobal.stats.earned / myGlobal.stats.reviewCount);
+  myGlobal.stats.earnedraw = myGlobal.stats.earned;
   myGlobal.stats.earned = numToMoney(myGlobal.stats.earned);
   myGlobal.stats.startDate = myGlobal.stats.startDate.format("l");
   myGlobal.stats.recentDate = myGlobal.stats.recentDate.format("l");
@@ -560,10 +561,7 @@ function updateDatePicker() {
   //restore saved dates if the user chooses that setting
   var datesState = curDatesState();
   if (datesState === "from" || datesState === "both") {
-    // fromDate = myGlobal.savedDates.from;
-    fromDate = myGlobal.savedDates.to;
-    var parts = fromDate.split('/');
-    fromDate = parts[0]+'/1/'+parts[2];
+    fromDate = myGlobal.savedDates.from;
   }
   if (datesState === "both") {
     toDate = myGlobal.savedDates.to;
@@ -1287,8 +1285,32 @@ $(function() {
     if (curDataStr !== '{}') {
       $('#lastData').removeClass('hide');
     }
-
+    $('#lastData').click();
     $('#cover').fadeOut(500);  
   });
   
 });
+
+$('#rate').focusout(function(){
+  localStorage.setItem('rate', $('#rate').val());
+});
+
+$('#rate').ready(function(){
+  var rate = localStorage.getItem('rate');
+  if (rate)$('#rate').val(rate);
+  else $('#rate').val('6.8');
+  setTimeout(function() {
+    $('#thismonth').click();
+  }, 500);
+});
+
+$('#thismonth').click(function(){
+  var tmp = myGlobal.stats.recentDate.split('/');
+  $('.fromDate').datepicker('setDate', tmp[0]+'/1/'+tmp[2]);
+  var num = myGlobal.stats.earnedraw*$('#rate').val();
+  num = Math.round(num*100)/100;
+  $('#thismonth').text('本月总额：' + num + '￥');
+});
+
+
+
