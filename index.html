@@ -59,27 +59,19 @@
           <li><a href="javascript:;" class="statRecent pulsed stat"></a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="javascript:;" class="refreshData pulsed hide help" data-placement="auto bottom" data-toggle="popover" data-content="Refresh data from Udacity" data-trigger="hover"><i class="fa fa-lg fa-refresh"></i></a></li>
+          <li><a href="javascript:;" class="refreshData pulsed hide help" data-placement="auto bottom" data-toggle="popover" data-content="刷新" data-trigger="hover"><i class="fa fa-lg fa-refresh"></i></a></li>
           <li class="dropdown hide">
             <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="exportButton"></span><i class="fa fa-lg fa-floppy-o"></i><span class="caret"></span></a>
             <ul class="dropdown-menu exportDD">
-              <li><a href="javascript:;" class="exportCSV hide pulsed help" data-placement="auto left" data-toggle="popover" data-content="Export data to a CSV to use in Excel, Google Sheets, etc." data-trigger="hover"><i class="fa fa-lg fa-file-excel-o"> CSV</i></a></li>
-              <li><a href="javascript:;" class="exportJSON hide pulsed help" data-placement="auto left" data-toggle="popover" data-content="Export data as a .json file" data-trigger="hover"><i class="fa fa-lg fa-file-text-o"> JSON</i></a></li>
+              <li><a href="javascript:;" class="exportCSV hide pulsed help" data-placement="auto left" data-toggle="popover" data-content="保存为 CSV 文件" data-trigger="hover"><i class="fa fa-lg fa-file-excel-o"> CSV</i></a></li>
+              <li><a href="javascript:;" class="exportJSON hide pulsed help" data-placement="auto left" data-toggle="popover" data-content="保存为 json 文件" data-trigger="hover"><i class="fa fa-lg fa-file-text-o"> JSON</i></a></li>
             </ul>
           </li>
 
           <li class="dropdown">
             <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="settingsButton"></span><i class="fa fa-lg fa-cog"></i><span class="caret"></span></a>
             <ul class="dropdown-menu settingsDD">
-              <li><a href="javascript:;" class="toggleDates pulsed  help" data-placement="auto left" data-toggle="popover" data-content="Toggle saving set date after refresh ( &#10003; is both, &#10134; is start date, &#10006; is none )" data-trigger="hover"><i class="fa fa-lg fa-calendar-minus-o"> Saved Dates</i></a></li>
-              <li><a href="javascript:;" class="toggleTheme pulsed help" data-placement="auto left" data-toggle="popover" data-content="Toggle page theme on/off" data-trigger="hover"><i class="fa fa-lg fa-paint-brush"> Theme</i></a></li>
-            </ul>
-          </li>
-          <li class="dropdown">
-            <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="settingsButton"></span><i class="fa fa-lg fa-question"></i><span class="caret"></span></a>
-            <ul class="dropdown-menu helpDD">
-              <li><a href="https://github.com/simplydallas/udacityreviewparser/blob/gh-pages/readme.md" target="_blank" class="readMe pulsed help" data-placement="auto left" data-toggle="popover" data-content="Readme file (with step by step instructions)" data-trigger="hover"><i class="fa fa-lg fa-book"> Readme</i></a></li>
-              <li><a href="javascript:;" class="copyCode pulsed help" data-placement="auto left" data-toggle="popover" data-content="Copy helper code to your clipboard for pasting into the Udacity review dashboard console (won't work in safari or old browsers)" data-trigger="hover"><i class="fa fa-lg fa-clipboard"> Code Snippet</i></a></li>
+              <li><a href="javascript:;" class="toggleTheme pulsed help" data-placement="auto left" data-toggle="popover" data-content="夜间模式" data-trigger="hover"><i class="fa fa-lg fa-paint-brush"> 主题</i></a></li>
             </ul>
           </li>
           <li>
@@ -124,10 +116,10 @@
       <div id="reviews">
         <div class="row filter-row">
           <div class="col-sm-2 search-wrapper">
-            <input class="my-search form-control" placeholder="Strict Search" />
+            <input class="my-search form-control" placeholder="搜索" />
           </div>
           <div class="col-sm-2 fuzzy-wrapper">
-            <input class="my-fuzzy-search form-control" placeholder="Fuzzy Search" />
+            <input class="my-fuzzy-search form-control" placeholder="模糊搜索" />
           </div>
           <div class="col-sm-3 date-wrapper">
             <div class="input-daterange input-group" id="datepicker">
@@ -148,19 +140,19 @@
         <div class="row button-row">
           <div class="col-sm-12 col-xs-12 button-wrapper">
             <button class="sort pulsed btn btn-sm btn-primary col-sm-2 col-xs-2" data-sort="id">
-              <span class="hidden-xs">Sort by </span>id
+              <span class="hidden-xs">ID</span>
             </button>
             <button class="sort pulsed btn btn-sm btn-primary col-sm-2 col-xs-2" data-sort="completedDate">
-              <span class="hidden-xs">Sort by </span>completed
+              <span class="hidden-xs">完成时间</span>
             </button>
              <button class="sort pulsed btn btn-sm btn-primary col-sm-2 col-xs-2" data-sort="earned">
-              <span class="hidden-xs">Sort by </span>earned
+              <span class="hidden-xs">收入</span>
             </button>
              <button class="sort pulsed btn btn-sm btn-primary col-sm-2 col-xs-2" data-sort="result">
-              <span class="hidden-xs">Sort by </span>result
+              <span class="hidden-xs">评分/反馈</span>
             </button>
              <button class="sort pulsed btn btn-sm btn-primary col-sm-4 col-xs-4" data-sort="name">
-              <span class="hidden-xs">Sort by </span>name
+              <span class="hidden-xs">项目名称</span>
             </button>
           </div>
         </div>

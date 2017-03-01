@@ -260,14 +260,14 @@ function updateStats() {
   var spnSt = '<span class="text-success">';
   var spanSt2 = '<span class="text-success notes" data-placement="auto bottom" ' +
         'data-toggle="popover" data-trigger="hover" data-content="';
-  $('.statCnt').html('Reviews: ' + spnSt + myGlobal.stats.reviewCount + '</span>');
-  $('.statEarned').html('Earned: ' + spnSt + myGlobal.stats.earned + '</span>');
-  $('.statAvg').html('Average: ' + spnSt + myGlobal.stats.avgEarned + '</span>');
-  $('.statStart').html('Earliest: ' + spanSt2 + "Overall Earliest: " +
+  $('.statCnt').html('审阅总数: ' + spnSt + myGlobal.stats.reviewCount + '</span>');
+  $('.statEarned').html('收入总数: ' + spnSt + myGlobal.stats.earned + '</span>');
+  $('.statAvg').html('平均收入: ' + spnSt + myGlobal.stats.avgEarned + '</span>');
+  $('.statStart').html('最早日期: ' + spanSt2 + "Overall Earliest: " +
                        myGlobal.staticStats.startDate + '">' + myGlobal.stats.startDate + '</span>');
-  $('.statRecent').html('Latest: ' + spanSt2 + "Overall Latest: " +
+  $('.statRecent').html('最晚日期: ' + spanSt2 + "Overall Latest: " +
                         myGlobal.staticStats.recentDate + '">' + myGlobal.stats.recentDate + '</span>');
-  $('.statAvgTime').html('<span class="hidden-sm">Average </span>Time: ' + spnSt + myGlobal.stats.avgDuration + '</span>');
+  $('.statAvgTime').html('<span class="hidden-sm">平均批改时间</span>: ' + spnSt + myGlobal.stats.avgDuration + '</span>');
 
   var projStr = '';
   var projStr2 = '';
@@ -292,6 +292,7 @@ function updateStats() {
   //also apply dates to the date picker
   //unless this event came from a date picker event
   if (!myGlobal.datePickerActive) updateDatePicker();
+  updatemoney();
   debug("Update Stats ended");
 }
 
@@ -1291,8 +1292,9 @@ $(function() {
   
 });
 
-$('#rate').focusout(function(){
+$('#rate').bind('input propertychange', function() {
   localStorage.setItem('rate', $('#rate').val());
+  updatemoney();
 });
 
 $('#rate').ready(function(){
@@ -1304,12 +1306,16 @@ $('#rate').ready(function(){
   }, 500);
 });
 
-$('#thismonth').click(function(){
-  var tmp = myGlobal.stats.recentDate.split('/');
-  $('.fromDate').datepicker('setDate', tmp[0]+'/1/'+tmp[2]);
+function updatemoney(){
   var num = myGlobal.stats.earnedraw*$('#rate').val();
   num = Math.round(num*100)/100;
   $('#thismonth').text('本月总额：' + num + '￥');
+}
+
+$('#thismonth').click(function(){
+  var tmp = myGlobal.stats.recentDate.split('/');
+  $('.fromDate').datepicker('setDate', tmp[0]+'/1/'+tmp[2]);
+  updatemoney();
 });
 
 
